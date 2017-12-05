@@ -22,13 +22,6 @@ def parseDataFileSendElastic(dataFile, conf):
 				line = r"%s" % line
 			
 			l = DataLine(line, conf[dataFile.getSoftware()], dataFile.getSoftware(), dataFile.getDevice())
-
-			if timeBase:
-				baseDate = dateutil.parser.parse(timeBase)
-				lineDate = dateutil.parser.parse(l.getProps()["timestamp"])
-				seconds = abs((baseDate-lineDate).total_seconds())
-				if seconds > conf["general"]["time_interval"]:
-					continue
 			
 			es.create(index="disiem", doc_type="disiem", body=json.dumps(l.getProps()))
 
