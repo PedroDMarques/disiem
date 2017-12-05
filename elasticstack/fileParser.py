@@ -34,9 +34,8 @@ def parseDataFileSendElastic(dataFile, conf):
 				es.create(
 					index="disiem", 
 					doc_type="disiem",
-					body=json.dumps(l.getProps()),
+					body=json.dumps(l.getProps())
 				)
-
 
 def parseDataFile(dataFile, savePath, conf, startIndex, timeBase=None):
 	savingDirPath = os.path.join(savePath, os.path.dirname(dataFile.getDataPath()))
