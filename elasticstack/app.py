@@ -77,7 +77,6 @@ if __name__ == "__main__":
 		print colorTab(CYAN) + colorText("Total filtered files: %d" % (len(dataFiles) - len(filteredDataFiles)), RED)
 		print colorTab(CYAN) + colorText("Total parsed files: %d" % len(filteredDataFiles), CYAN)
 
-
 	elif args.mode == "impossible-timestamps":
 		for f in filteredDataFiles:
 			t1 = fileParser.parseDataFileHead(f, PARSER_CONF).getProps()["timestamp"]
