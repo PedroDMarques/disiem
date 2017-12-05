@@ -19,50 +19,63 @@ def getDataFiles(basePath, cyclePath=""):
 
 	return dataFiles
 
-def filterDataFiles(files, parserConf, filters=dict()):
+def printFilter(df, reason, p1=None, p2=None):
+	if reason == "software":
+		print colorTab(RED) + colorText("%s --- Filtered based on software [%s]" % (df, df.getSoftware()), RED)
+	elif reason == "device":
+		print colorTab(RED) + colorText("%s --- Filtered based on device [%s]" % (df, df.getDevice()), RED)
+	elif reason == "name":
+		print colorTab(RED) + colorText("%s --- Filtered based on file name [%s]" % (df, df.getFileName()), RED)
+	elif reason == "ext":
+		print colorTab(RED) + colorText("%s --- Filtered based on file extension [%s]" % (df, df.getFileExt()), RED)
+	elif reason == "min_size":
+		print colorTab(RED) + colorText("%s --- Filtered based on file size [%d]" % (df, df.getFileSize()), RED)
+	elif reason == "max_size":
+		print colorTab(RED) + colorText("%s --- Filtered based on file size [%d]" % (df, df.getFileSize()), RED)
+	elif reason == "included_timestamp":
+		print colorTab(RED) + colorText("%s --- Filtered based on timestamp [%s - %s]" % (df, p1, p2), RED)
+
+def printPass(dataFile):
+	print colorTab(GREEN) + colorText(dataFile, GREEN)
+
+def filterDataFiles(files, parserConf, config, verboseFilter=False, verbosePass=False):
 	filteredFiles = []
-	for f in files:
-		# Filter by software
-		if f.getSoftware() in filters["ignore_software"]:
-			print colorTab(RED) + colorText(str(f)+ " --- Filtered based on software [%s]" % f.getSoftware(), RED)
+	for df in files:
+		
+		if df.getSoftware() in config.getOption("ignore_software"):
+			if verboseFilter: printFilter(df, "software")
 			continue
-
-		# Filter by device
-		if f.getDevice() in filters["ignore_device"]:
-			print colorTab(RED) + colorText(str(f) + " --- Filtered based on device [%s]" % f.getDevice(), RED)
+		
+		if df.getDevice() in config.getOption("ignore_device"):
+			if verboseFilter: printFilter(df, "device")			
 			continue
-
-		# Filter by file names
-		if f.getFileName() in filters["ignore_file_names"]:
-			print colorTab(RED) + colorText(str(f) + " --- Filtered based on file name [%s]" % f.getFileName(), RED)
+		
+		if df.getFileName() in config.getOption("ignore_file_name"):
+			if verboseFilter: printFilter(df, "name")
 			continue
-
-		# Filter by file extensions
-		if f.getFileExt() in filters["ignore_file_ext"]:
-			print colorTab(RED) + colorText(str(f) + " --- Filtered based on file extension [%s]" % f.getFileExt(), RED)
+		
+		if df.getFileExt() in config.getOption("ignore_file_ext"):
+			if verboseFilter: printFilter(df, "ext")
 			continue
-
-		# Filter by file size
-		if filters["min_size"]:
-			if f.getFileSize() < filters["min_size"]:
-				print colorTab(RED) + colorText(str(f) + " --- Filtered based on file size [%d]" % f.getFileSize(), RED)
+		
+		if config.getOption("min_file_size"):
+			if df.getFileSize() < config.getOption("min_file_size"):
+				if verboseFilter: printFilter(df, "min_size")
+				continue
+		
+		if config.getOption("max_file_size"):
+			if df.getFileSize() > config.getOption("max_file_size"):
+				if verboseFilter: printFilter(df, "max_size")
+				continue
+		
+		if config.getOption("included_timestamp"):
+			t1 = fileParser.parseDataFileHead(df, parserConf).getProps()["timestamp"]
+			t2 = fileParser.parseDataFileTail(df, parserConf).getProps()["timestamp"]
+			if not (t1 < config.getOption("included_timestamp") < t2):
+				if verboseFilter: printFilter(df, "included_timestamp", t1, t2)
 				continue
 
-		if filters["max_size"]:
-			if f.getFileSize() > filters["max_size"]:
-				print colorTab(RED) + colorText(str(f) + " --- Filtered based on file size [%d]" % f.getFileSize(), RED)
-				continue
-
-		# Filter by timestamp
-		if filters["included_timestamp"]:
-			t1 = fileParser.parseDataFileHead(f, parserConf).getProps()["timestamp"]
-			t2 = fileParser.parseDataFileTail(f, parserConf).getProps()["timestamp"]
-
-			if not (t1 < filters["included_timestamp"] < t2):
-				print colorTab(RED) + colorText(str(f) + " --- Filtered based on timestamp [%s - %s]" % (t1, t2), RED)
-				continue
-
-		print colorTab(GREEN) + colorText(f.getDataPath(), GREEN)
-		filteredFiles.append(f)
+		filteredFiles.append(df)
+		if verbosePass: printPass(df)
 
 	return filteredFiles

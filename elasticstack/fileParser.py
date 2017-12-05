@@ -5,6 +5,38 @@ from printUtil import *
 from DataLine import DataLine
 
 import dateutil.parser
+try:
+	from elasticsearch import Elasticsearch
+except:
+	pass
+
+def parseDataFileSendElastic(dataFile, conf):
+	es = Elasticsearch()
+	
+	inFilePath = dataFile.getAbsolutePath()
+
+	with open(inFilePath, "r") as inFile:
+		for line in inFile:
+			try:
+				# Hack for mcaffee
+				if dataFile.getSoftware() == "mcafee":
+					line = r"%s" % line
+				
+				l = DataLine(line, conf[dataFile.getSoftware()], dtaFile.getSoftware(), dataFile.getDevice())
+
+				if timeBase:
+					baseDate = dateutil.parser.parse(timeBase)
+					lineDate = dateutil.parser.parse(l.getProps()["timestamp"])
+					seconds = abs((baseDate-lineDate).total_seconds())
+					if seconds > conf["general"]["time_interval"]:
+						continue
+				
+				es.create(
+					index="disiem", 
+					doc_type="disiem",
+					body=json.dumps(l.getProps()),
+				)
+
 
 def parseDataFile(dataFile, savePath, conf, startIndex, timeBase=None):
 	savingDirPath = os.path.join(savePath, os.path.dirname(dataFile.getDataPath()))

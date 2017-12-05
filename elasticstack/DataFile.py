@@ -9,9 +9,9 @@ class DataFile(object):
 		"""
 		self.basePath = basePath
 		self.dataPath = dataPath
-		self.software = dataPath.split("\\")[0]
-		self.device = dataPath.split("\\")[1]
-		self.fileName = dataPath.split("\\")[-1]
+		self.software = dataPath.split(os.sep)[0]
+		self.device = dataPath.split(os.sep)[1]
+		self.fileName = dataPath.split(os.sep)[-1]
 		self.fileExt = self.fileName.split(".")[-1]
 		if self.fileExt == self.fileName:
 			self.fileExt = None
