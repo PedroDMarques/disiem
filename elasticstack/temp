@@ -1,0 +1,196 @@
+bro:
+	"src_port": "58348",												# source_port
+	"sub": "host-qUQErVzxJsnIC/1zsT+6Bw==",
+	"des_software_type": "bro",											# software
+	"proto": "udp",														# protocol
+	"timestamp": "2017-04-16T10:09:57.210098+00:00",					# timestamp
+	"supress_for": "3600.000000",
+	"des_device_type": "bro",											# device
+	"peer_desc": "manager",
+	"actions": "Notice::ACTION_LOG",									# action
+	"signature": "Intel::Notice",
+	"src_ip": null,														# source_ip
+	"origin_ip": "176.151.248.82",
+	"dropped": "F",
+	"flow_id": "CeJlNf2X1uQEsMYmwf",
+	"msg": "Intel hit on lightpack.tv at DNS::IN_REQUEST",				# message
+	"dst_ip": "54.70.185.20",											# destination_ip
+	"sourceType": "bro",
+	"dst_port": "53",													# destination_port
+	"sourcetype": "bro"
+
+ciscoasa:
+	"protocol": "tcp",													# protocol
+    "dst_interface": "sydfwo01-outside",								# destination interface
+    "timezone": "+00:00",												# timezone (seems to be always +00:00 so might not need to worry)
+    "syslog_severity_code": 5,											# severity (might be able to correlate it with other data)
+    "log_level": "5",
+    "hashcode1": "0xcea66419",
+    "hashcode2": "0x7b646473",
+    "src_ip": "10.30.39.20",											# source_ip
+    "type": "cisco-asa",
+    "message_id": "106100",
+    "timestamp": "2017-04-16T10:10:00+00:00",							# timestamp
+    "des_device_type": "SYDFWO01",										# device
+    "ciscotag": "ASA-5-106100",											# cisco tag (found in ciscovpn as well)
+    "src_port": "65534",												# source_port
+    "syslog_severity": "notice",										# severity (possibly find incompatabilities with severity_code)
+    "sysloghost": "SYDFWO01",
+    "src_interface": "sydfwo01-outside",								# source interface
+    "des_software_type": "ciscoasa",									# software
+    "interval": "first hit",
+    "dst_port": "445",													# destination_port
+    "hit_count": "1",
+    "action": "permitted",
+    "dst_ip": "10.20.142.88												# destination_ip
+    "policy_id": "sydfwo01-outside"
+
+ciscovpn:
+	"bytes_transmitted": "0",											# bytes transmitted
+    "group": "RemoteAccessService",										# group
+    "timezone": "+00:00",												# timezone (seems to be always +00:00 so might not need to worry)
+    "bytes_received": "0",												# bytes received
+    "syslog_severity_code": 4,											# severity (might be able to correlate it with other data)
+    "log_level": "4",
+    "src_ip": "238.139.15.15",											# source_ip
+    "type": "cisco-vpn",
+    "message_id": "113019",
+    "username": "Hecate",												# username (what is this ?)
+    "session_duration": "2d 4h:46m:49s",								# session duration
+    "session_type": "AnyConnect-Parent",								# session type
+    "timestamp": "2017-04-16T10:09:47+00:00",							# timestamp
+    "des_device_type": "ciscovpn",										# device
+    "reason": "User Requested",
+    "src_port": null,													# source_port
+    "syslog_severity": "warning",										# severity (possibly find incompatabilities with severity_code)
+    "sysloghost": "host-vNdLmiWaccm1+dxCwJMogw==",
+    "ciscotag": "ASA-4-113019",											# cisco tag (found in ciscoasa as well)
+    "des_software_type": "ciscovpn",									# software
+    "dst_port": null,													# destination_port
+    "dst_ip": null														# destination_ip
+
+pan:
+	"ActionSource": "from-policy",
+    "EgressInterface": "ethernet1/3.435",								# egress interface
+    "SourceZone": "server",
+    "totalBytes": "245",												# total bytes
+    "LogForwardingProfile": "default",
+    "SerialNumber": "001801045938",
+    "DestinationZone": "vpn-gwan",										# destination zone
+    "DestinationLocation": "172.16.0.0-172.31.255.255",					# destination ip mask
+    "Application": "dns",												# application
+    "dstBytes": "155",													# destination bytes
+    "dstPostNAT": "0.0.0.0",											# destination NAT (?)
+    "URLCategory": "any",
+    "srcPostNAT": "0.0.0.0",											# source NAT (?)
+    "Type": "TRAFFIC",
+    "SessionEndReason": "aged-out",
+    "DeviceName": "jktfwo305a",											# device (this can differ from "des_device_type")
+    "src_port": "5416",													# source_port
+    "server_name": "172.22.137.53",										# server name/ip (this can differ from src_ip ?)
+    "proto": "udp",														# protocol
+    "RepeatCount": "1",
+    "sequence": "6333719",
+    "srcPostNATPort": "0",												# source NAT port (?)
+    "ReceiveTime": "2017/04/16 08:09:59",								# receive timestamp
+    "DeviceGroupHierarchyL2": "0",
+    "DeviceGroupHierarchyL3": "0",
+    "SessionID": "133111",
+    "DeviceGroupHierarchyL1": "0",
+    "DeviceGroupHierarchyL4": "0",
+    "srcBytes": "90",													# source bytes
+    "totalPackets": "2",												# number packets (source and destination combined)
+    "dst_port": "53",													# destination_port
+    "dstPostNATPort": "0",												# destination NAT port (?)
+    "sourceType": "pan_firewall",
+    "timestamp": "2017-04-16T10:10:00+00:00",							# timestamp
+    "IngressInterface": "ethernet1/4.101",								# ingress interface
+    "des_device_type": "172.22.137.53",									# device (this can differ internally in the log file)
+    "ActionFlags": "0x0",
+    "dstPackets": "1",													# destination packets
+    "ElapsedTime": "0",													# elapsed time (in seconds ? milliseconds ?)
+    "Subtype": "end",
+    "Flags": "0x19",
+    "srcPackets": "1",													# source packets
+    "vSrcName": "jktfwo305",											# device (same as DeviceName ?)
+    "VirtualSystem": "vsys1",
+    "des_software_type": "pan",											# software
+    "cat": "TRAFFIC",
+    "devTime": "Apr 16 2017 08:09:59 GMT",								# dev time (?)
+    "StartTime": "2017/04/16 08:09:30",									# start time (?)
+    "RuleName": "CSM-10",												# activated rule (maybe we can correlate this with other rules in different software)
+    "action": "allow",
+    "dst_ip": "10.20.142.88",											# destination_ip
+    "src_ip": "10.23.137.229",											# source_ip
+    "SourceLocation": "172.16.0.0-172.31.255.255"
+
+suricata:
+	"des_software_type": "suricata",									# software
+    "payload_printable": ".............bogojevic.no-ip.org.....",
+    "src_port": 49943,													# source_port
+    "event_type": "alert",
+    "stream": 0,
+    "proto": "UDP",														# protocol (seems to be all UDP for now)
+    "timestamp": "2017-04-16T10:08:47.422132+00:00",					# timestamp
+    "des_device_type": "ncesecids05",									# device
+    "in_iface": "eth2",													# in interface
+    "alert": {
+      "category": "Potentially Bad Traffic",
+      "severity": 2,													# severity (might be able to correlate with ciscoasa and vpn ?)
+      "rev": 3,
+      "gid": 1,
+      "signature": "ET INFO DYNAMIC_DNS Query to a Suspicious no-ip Domain",
+      "action": "allowed",
+      "signature_id": 2013743
+    },
+    "src_ip": "30.169.95.101",											# source_ip
+    "packet": "ACWQ5idmovKFAAAGCABFAABBbJkAAD4RpRzAqF9lUpb4UsMXADUALR7RiY4BAAABAAAAAAAACWJvZ29qZXZpYwVuby1pcANvcmcAABwAAQ==", # packet ???
+    "flow_id": 338901936056168,
+    "dst_ip": "176.151.248.82",											# destination_ip
+    "packet_info": {
+      "linktype": 1
+    },
+    "payload": "iY4BAAABAAAAAAAACWJvZ29qZXZpYwVuby1pcANvcmcAABwAAQ==",	# payload ???
+    "dst_port": 53														# destination_port
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+there was no overlap in terms of src_dst_ip pairs expect for null -> null.
+but that only happened because pan got one alert that is broken (generic communication error) and it didn't report any addresses
