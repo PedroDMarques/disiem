@@ -31,11 +31,7 @@ def parseDataFileSendElastic(dataFile, conf):
 					if seconds > conf["general"]["time_interval"]:
 						continue
 				
-				es.create(
-					index="disiem", 
-					doc_type="disiem",
-					body=json.dumps(l.getProps())
-				)
+				es.create(index="disiem", doc_type="disiem", body=json.dumps(l.getProps()))
 
 def parseDataFile(dataFile, savePath, conf, startIndex, timeBase=None):
 	savingDirPath = os.path.join(savePath, os.path.dirname(dataFile.getDataPath()))
