@@ -21,7 +21,7 @@ def parseDataFileSendElastic(dataFile, conf):
 			if dataFile.getSoftware() == "mcafee":
 				line = r"%s" % line
 			
-			l = DataLine(line, conf[dataFile.getSoftware()], dtaFile.getSoftware(), dataFile.getDevice())
+			l = DataLine(line, conf[dataFile.getSoftware()], dataFile.getSoftware(), dataFile.getDevice())
 
 			if timeBase:
 				baseDate = dateutil.parser.parse(timeBase)
