@@ -38,7 +38,10 @@ def printFilter(df, reason, p1=None, p2=None):
 def printPass(dataFile):
 	print colorTab(GREEN) + colorText(dataFile, GREEN)
 
-def filterDataFiles(files, parserConf, config, verboseFilter=False, verbosePass=False):
+def filterDataFiles(files, parserConf, config, **kwargs):
+	verboseFilter = kwargs["verboseFilter"] if "verboseFilter" in kwargs else False
+	verbosePass = kwargs["verbosePass"] if "verbosePass" in kwargs else False
+
 	filteredFiles = []
 	for df in files:
 		
@@ -54,25 +57,25 @@ def filterDataFiles(files, parserConf, config, verboseFilter=False, verbosePass=
 			if verboseFilter: printFilter(df, "name")
 			continue
 		
-		if df.getFileExt() in config.getOption("ignore_file_ext"):
+		if df.getFileExt() in config.getOption("ignore_file_extension"):
 			if verboseFilter: printFilter(df, "ext")
 			continue
 		
-		if config.getOption("min_file_size"):
-			if df.getFileSize() < config.getOption("min_file_size"):
+		if config.getOption("min_data_file_size"):
+			if df.getFileSize() < config.getOption("min_data_file_size"):
 				if verboseFilter: printFilter(df, "min_size")
 				continue
 		
-		if config.getOption("max_file_size"):
-			if df.getFileSize() > config.getOption("max_file_size"):
+		if config.getOption("max_data_file_size"):
+			if df.getFileSize() > config.getOption("max_data_file_size"):
 				if verboseFilter: printFilter(df, "max_size")
 				continue
 		
-		if config.getOption("included_timestamp"):
+		if config.getOption("data_file_includes_timestamp"):
 			t1 = fileParser.parseDataFileHead(df, parserConf).getProps()["timestamp"]
 			t2 = fileParser.parseDataFileTail(df, parserConf).getProps()["timestamp"]
-			if not (t1 < config.getOption("included_timestamp") < t2):
-				if verboseFilter: printFilter(df, "included_timestamp", t1, t2)
+			if not (t1 < config.getOption("data_file_includes_timestamp") < t2):
+				if verboseFilter: printFilter(df, "data_file_includes_timestamp", t1, t2)
 				continue
 
 		filteredFiles.append(df)
