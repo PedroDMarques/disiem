@@ -64,7 +64,7 @@ def _noop(args, config):
 
 def _resetElasticsearch(args, config):
 	es = Elasticsearch()
-	es.delete(index="_all", timeout=4)
+	es.indices.delete(index="_all", ignore=[400, 404])
 
 def getDataFiles(args, config):
 	dataFiles = des_filesearcher.getDataFiles(config.getOption("data_location"))
