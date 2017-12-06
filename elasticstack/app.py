@@ -28,7 +28,9 @@ def _write(args, config):
 
 def _send(args, config):
 	files, filtered = getDataFiles(args, config)
-	des_dataparser.parseDataFileSendElastic(filtered, PARSER_CONF)
+	for df in filtered:
+		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
+		des_dataparser.parseDataFileSendElastic(df, PARSER_CONF)
 
 def _list(args, config):
 	files, filtered = getDataFiles(args, config)
