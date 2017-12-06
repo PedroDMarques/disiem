@@ -15,7 +15,7 @@ PARSER_CONF = {
 		"transfer_fields": False,
 		# 'ignore_fields' is only used if 'transfer_fields' is False or empty.
 		# If using 'ignore_fields' we tranfer all of the fields from the original data except for the keys in this list
-		"ignore_fields": ["origin_ip", "source_port", "dest_ip", "dest_port", "timestamp", "ts"],
+		"ignore_fields": ["proto", "origin_ip", "source_port", "dest_ip", "dest_port", "timestamp", "ts"],
 		# Transfer/Ignore fields is the first action taken, so fields might be overwriten with fields specified in 'parse_fields'
 		# The named fields that need to be the same for every file
 		"parse_fields": {
@@ -41,7 +41,7 @@ PARSER_CONF = {
 
 	"pan": {
 		"transfer_fields": False,
-		"ignore_fields": ["src", "srcPort", "dst", "dstPort", "datetime"],
+		"ignore_fields": ["proto", "src", "srcPort", "dst", "dstPort", "datetime"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "src",
@@ -60,7 +60,7 @@ PARSER_CONF = {
 
 	"ciscoasa": {
 		"transfer_fields": False,
-		"ignore_fields": ["src_ip", "src_port", "dst_ip", "dst_port", "@timestamp"],
+		"ignore_fields": ["protocol", "src_ip", "src_port", "dst_ip", "dst_port", "@timestamp"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "src_ip",
@@ -115,7 +115,7 @@ PARSER_CONF = {
 
 	"suricata": {
 		"transfer_fields": False,
-		"ignore_fields": ["src_ip", "src_port", "dest_ip", "dest_port", "timestamp"],
+		"ignore_fields": ["proto", "src_ip", "src_port", "dest_ip", "dest_port", "timestamp"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "src_ip",
