@@ -13,7 +13,7 @@ from PARSER_CONF import PARSER_CONF
 _indexCounter = 1
 
 try:
-	import elasticsearch from Elasticsearch
+	from elasticsearch import Elasticsearch
 except:
 	pass
 
