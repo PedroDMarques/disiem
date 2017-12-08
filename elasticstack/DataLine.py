@@ -37,5 +37,8 @@ class DataLine(object):
 
 			self.props[field] = value
 
+		for field in conf["scripted_fields"]:
+			self.props[field] = conf["scripted_fields"][field](self.props)
+
 	def getProps(self):
 		return self.props

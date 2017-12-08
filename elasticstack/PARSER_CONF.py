@@ -37,6 +37,14 @@ PARSER_CONF = {
 				"protocol": (lambda x: x.lower()),
 			},
 		},
+
+		# Extra scripted fields to add
+		# Each key will be the name of the field to add to the line
+		# and should correspond to a function, which will be called with the current fields already parsed
+		# These are the last functions to be called, so all the props before are already in the object these are called with
+		"scripted_fields": {
+			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+		},
 	},
 
 	"pan": {
@@ -55,6 +63,10 @@ PARSER_CONF = {
 				"timestamp": (lambda x: dateutil.parser.parse(x).replace(tzinfo=pytz.utc).isoformat()),
 				"protocol": (lambda x: x.lower()),
 			},
+		},
+
+		"scripted_fields": {
+			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
 		},
 	},
 
@@ -75,6 +87,10 @@ PARSER_CONF = {
 				"protocol": (lambda x: [y.lower() for y in x] if type(x) is list else x.lower()),
 			},
 		},
+
+		"scripted_fields": {
+			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+		},
 	},
 
 	"ciscovpn": {
@@ -92,6 +108,10 @@ PARSER_CONF = {
 			"parse": {
 				"timestamp": (lambda x: dateutil.parser.parse(x).replace(tzinfo=pytz.utc).isoformat()),
 			},
+		},
+
+		"scripted_fields": {
+			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
 		},
 	},
 
@@ -111,6 +131,10 @@ PARSER_CONF = {
 				"timestamp": (lambda x: dateutil.parser.parse(x).replace(tzinfo=pytz.utc).isoformat()),
 			},
 		},
+
+		"scripted_fields": {
+			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+		},
 	},
 
 	"suricata": {
@@ -129,6 +153,10 @@ PARSER_CONF = {
 				"timestamp": (lambda x: dateutil.parser.parse(x).replace(tzinfo=pytz.utc).isoformat()),
 				"protocol": (lambda x: x.lower()), 
 			},
+		},
+
+		"scripted_fields": {
+			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
 		},
 	}
 }
