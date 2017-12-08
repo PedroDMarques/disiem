@@ -11,7 +11,7 @@ bro:
 	"signature": "Intel::Notice",
 	"src_ip": null,														# source_ip
 	"origin_ip": "176.151.248.82",
-	"dropped": "F",
+	"dropped": "F",														# Wether it was dropped or not (?)
 	"flow_id": "CeJlNf2X1uQEsMYmwf",
 	"msg": "Intel hit on lightpack.tv at DNS::IN_REQUEST",				# message
 	"dst_ip": "54.70.185.20",											# destination_ip

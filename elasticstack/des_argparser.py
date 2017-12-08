@@ -9,7 +9,7 @@ def parseArgs():
 		help="With -v each file filtered will be shown. With -vv both files filtered and passed will be shown")
 	
 	parser.add_argument("mode", 
-		choices=["write", "send", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch"]
+		choices=["write", "send", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output"]
 	)
 
 	parser.add_argument("-c", "--config", default="config.cfg", dest="config_location",
@@ -18,6 +18,14 @@ def parseArgs():
 	
 	parser.add_argument("--default-config", action="store_true",
 		help="If set will use a default config object instead of reading one from a file. If used in 'config-write' mode writes a config file with default values"
+	)
+
+	parser.add_argument("--one-file",
+		help="Specify the location of a specific data file to work on. This path should be relative to the 'data_location' config value"
+	)
+
+	parser.add_argument("-n", "--number-lines", default=1, type=int,
+		help="When using in 'output' mode specifies the number of lines per file that should be outputed"
 	)
 
 	return parser.parse_args()

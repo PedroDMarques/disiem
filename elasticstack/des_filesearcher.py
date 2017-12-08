@@ -2,7 +2,7 @@ import os
 from printUtil import *
 from DataFile import DataFile
 
-import fileParser
+import des_dataparser
 
 def getDataFiles(basePath, cyclePath=""):
 	nextPath = os.path.join(basePath, cyclePath)
@@ -72,8 +72,8 @@ def filterDataFiles(files, parserConf, config, **kwargs):
 				continue
 		
 		if config.getOption("data_file_includes_timestamp"):
-			t1 = fileParser.parseDataFileHead(df, parserConf).getProps()["timestamp"]
-			t2 = fileParser.parseDataFileTail(df, parserConf).getProps()["timestamp"]
+			t1 = des_dataparser.parseDataFileHead(df, parserConf).getProps()["timestamp"]
+			t2 = des_dataparser.parseDataFileTail(df, parserConf).getProps()["timestamp"]
 			if not (t1 < config.getOption("data_file_includes_timestamp") < t2):
 				if verboseFilter: printFilter(df, "data_file_includes_timestamp", t1, t2)
 				continue

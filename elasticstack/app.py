@@ -4,9 +4,8 @@ import des_argparser
 import des_configparser
 import des_filesearcher
 import des_dataparser
-
 from printUtil import *
-
+from DataFile import DataFile
 
 from PARSER_CONF import PARSER_CONF
 
@@ -23,18 +22,15 @@ def _configWrite(args):
 def _configList(args, config):
 	print config
 
-def _write(args, config):
+def _write(files, filtered, args, config):
 	print colorTab(RED) + colorText("Currently out of comission. Check back later...", RED)
 
-def _send(args, config):
-	files, filtered = getDataFiles(args, config)
+def _send(files, filtered, args, config):
 	for df in filtered:
 		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
 		des_dataparser.parseDataFileSendElastic(df, PARSER_CONF)
 
-def _list(args, config):
-	files, filtered = getDataFiles(args, config)
-	
+def _list(files, filtered, args, config):
 	print colorTab(YELLOW)
 	print colorTab(YELLOW) + colorText("Listing files...", YELLOW)
 	print colorTab(YELLOW)
@@ -44,11 +40,9 @@ def _list(args, config):
 
 	printDataFileCounts(len(files), len(filtered))
 
-def _impossibleTimestamps(args, config):
-	files, filtered = getDataFiles(args, config)
-
+def _impossibleTimestamps(files, filtered, args, config):
 	print colorTab(YELLOW)
-	print colorTab(YELLOW) + colorText("Listing files...", YELLOW)
+	print colorTab(YELLOW) + colorText("Impossible timestamps...", YELLOW)
 	print colorTab(YELLOW)
 
 	for df in filtered:
@@ -58,6 +52,13 @@ def _impossibleTimestamps(args, config):
 			print colorTab(color) + colorText("%s: %s - %s" % (df, t1, t2), color)
 
 	printDataFileCounts(len(files), len(filtered))
+
+def _output(files, filtered, args, config):
+	def cb(line):
+		print colorTab(YELLOW) + colorText(line, YELLOW)
+
+	for df in filtered:
+		des_dataparser.parseLines(df, PARSER_CONF, cb, args.number_lines)
 
 def _noop(args, config):
 	pass
@@ -91,12 +92,21 @@ if __name__ == "__main__":
 		config = des_configparser.Configuration(args.config_location, args.default_config)
 		
 		if args.mode == "config-list": _configList(args, config)
-		elif args.mode == "write": _write(args, config)
-		elif args.mode == "send": _send(args, config)
-		elif args.mode == "list": _list(args, config)
-		elif args.mode == "impossible-timestamps": _impossibleTimestamps(args, config)
 		elif args.mode == "noop": _noop(args, config)
 		elif args.mode == "reset-elasticsearch": _resetElasticsearch(args, config)
+		
+		else:
+			if args.one_file:
+				df = DataFile(config.getOption("data_location"), os.path.normpath(args.one_file))
+				files, filtered = [df], [df]
+			else:
+				files, filtered = getDataFiles(args, config)
+
+			if args.mode == "write": _write(files, filtered, args, config)
+			elif args.mode == "send": _send(files, filtered, args, config)
+			elif args.mode == "list": _list(files, filtered, args, config)
+			elif args.mode == "impossible-timestamps": _impossibleTimestamps(files, filtered, args, config)
+			elif args.mode == "output": _output(files, filtered, args, config)
 
 """
 def parseFiles(dataFiles, savePath):

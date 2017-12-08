@@ -10,6 +10,22 @@ try:
 except:
 	pass
 
+def parseLines(df, conf, callback, maxn=False):
+	with open(df.getAbsolutePath(), "r") as inFile:
+		n = 1
+		for line in inFile:
+			if maxn and n > maxn:
+				break
+
+			# Hack for mcafee
+			if df.getSoftware() == "mcafee":
+				line = r"%s" % line
+
+			l = DataLine(line, conf[df.getSoftware()], df.getSoftware(), df.getDevice())
+			callback(l.getProps())
+			
+			n += 1
+
 def parseDataFileSendElastic(dataFile, conf):
 	es = Elasticsearch()
 	
