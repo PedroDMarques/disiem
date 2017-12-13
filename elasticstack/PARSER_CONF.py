@@ -5,7 +5,7 @@ import pytz
 PARSER_CONF = {
 	"general": {
 		# in seconds
-		"time_interval": 60 * 10,
+		"time_interval": 60 * 30, # 30 minutes either way
 	},
 
 	# How to structure this configuration...
@@ -43,7 +43,9 @@ PARSER_CONF = {
 		# and should correspond to a function, which will be called with the current fields already parsed
 		# These are the last functions to be called, so all the props before are already in the object these are called with
 		"scripted_fields": {
-			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
+			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
 		},
 	},
 
@@ -66,7 +68,9 @@ PARSER_CONF = {
 		},
 
 		"scripted_fields": {
-			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
+			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
 		},
 	},
 
@@ -89,7 +93,9 @@ PARSER_CONF = {
 		},
 
 		"scripted_fields": {
-			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
+			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
 		},
 	},
 
@@ -111,7 +117,9 @@ PARSER_CONF = {
 		},
 
 		"scripted_fields": {
-			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
+			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
 		},
 	},
 
@@ -133,20 +141,22 @@ PARSER_CONF = {
 		},
 
 		"scripted_fields": {
-			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
+			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
 		},
 	},
 
 	"suricata": {
 		"transfer_fields": False,
-		"ignore_fields": ["proto", "src_ip", "src_port", "dest_ip", "dest_port", "timestamp"],
+		"ignore_fields": ["proto", "src_ip", "src_port", "dest_ip", "dest_port", "timestamp", "date"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "src_ip",
 				"src_port": "src_port",
 				"dst_ip": "dest_ip",
 				"dst_port": "dest_port",
-				"timestamp": "timestamp",
+				"timestamp": ["timestamp", "date"],
 				"protocol": "proto",
 			},
 			"parse": {
@@ -156,7 +166,9 @@ PARSER_CONF = {
 		},
 
 		"scripted_fields": {
-			"src_dst_ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
+			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
+			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
 		},
 	}
 }

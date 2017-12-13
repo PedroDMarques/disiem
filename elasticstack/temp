@@ -154,6 +154,39 @@ suricata:
     "dst_port": 53														# destination_port
 
 
+	if event_type == "http":
+	"http": {
+		"hostname": "host-C0k9S5eg"...,
+		"http_method": "POST",
+		"http_user_agent": "python-requests/2.13.0",
+		"length": 0,
+		"url": "/1ASIWNDCXXX",
+		"protocol": "HTTP/1.1",
+	}
+
+	if event_type == "tls":
+	"tls": {
+		"fingerprint": "b3:0b:da:2e"...,
+		"issuerdn": "C=FR, ST=France"...,
+		"notafter": "November 10th 2017, 13:01:59.000",
+		"notbefore": "November 10th 2016, 13:01:59.000",
+		"sni": "NCERDLABDELL503.top.nce.amadeus.net",
+		"subject": "CN=ncerdlabdell503.top.nce.amadeus.net",
+		"version": "TLS 1.2"
+	}
+
+	if event_type == "dns":
+	"dns": {
+		"id": 34.069,
+		"rcode": "NXDOMAIN",
+		"rrname": "10.in-addr.arpa",
+		"rrtype": "SOA",
+		"ttl": 300,
+		"type": "answer",
+	}
+
+
+
 
 
 

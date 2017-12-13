@@ -10,7 +10,7 @@ try:
 except:
 	pass
 
-def parseLines(df, conf, callback, maxn=False):
+def parseLines(df, conf, callback, maxn=False, timebase=None, time_chunks=60*30):
 	with open(df.getAbsolutePath(), "r") as inFile:
 		n = 1
 		for line in inFile:
@@ -22,6 +22,14 @@ def parseLines(df, conf, callback, maxn=False):
 				line = r"%s" % line
 
 			l = DataLine(line, conf[df.getSoftware()], df.getSoftware(), df.getDevice())
+
+			if timebase:
+				baseDate = dateutil.parser.parse(timebase)
+				lineDate = dateutil.parser.parse(l.getProps()["timestamp"])
+				seconds = abs((baseDate-lineDate).total_seconds())
+				if seconds > time_chunks:
+					continue
+
 			callback(l.getProps())
 			
 			n += 1

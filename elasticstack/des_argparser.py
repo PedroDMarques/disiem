@@ -20,12 +20,16 @@ def parseArgs():
 		help="If set will use a default config object instead of reading one from a file. If used in 'config-write' mode writes a config file with default values"
 	)
 
-	parser.add_argument("--one-file",
-		help="Specify the location of a specific data file to work on. This path should be relative to the 'data_location' config value"
+	parser.add_argument("--specific-files",
+		help="Specify the location of a the data files to work on. This path should be relative to the 'data_location' config value and different files separated by commas"
 	)
 
 	parser.add_argument("-n", "--number-lines", default=1, type=int,
 		help="When using in 'output' mode specifies the number of lines per file that should be outputed"
+	)
+
+	parser.add_argument("--include-files",
+		help="Specify the location of data files to force include in the parsing, even if they are to be filtered out. Should be a list of strings separated by commas"
 	)
 
 	return parser.parse_args()

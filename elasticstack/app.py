@@ -25,11 +25,6 @@ def _configList(args, config):
 def _write(files, filtered, args, config):
 	print colorTab(RED) + colorText("Currently out of comission. Check back later...", RED)
 
-def _send(files, filtered, args, config):
-	for df in filtered:
-		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
-		des_dataparser.parseDataFileSendElastic(df, PARSER_CONF)
-
 def _list(files, filtered, args, config):
 	print colorTab(YELLOW)
 	print colorTab(YELLOW) + colorText("Listing files...", YELLOW)
@@ -46,8 +41,8 @@ def _impossibleTimestamps(files, filtered, args, config):
 	print colorTab(YELLOW)
 
 	for df in filtered:
-			t1 = fileParser.parseDataFileHead(df, PARSER_CONF).getProps()["timestamp"]
-			t2 = fileParser.parseDataFileTail(df, PARSER_CONF).getProps()["timestamp"]
+			t1 = des_dataparser.parseDataFileHead(df, PARSER_CONF).getProps()["timestamp"]
+			t2 = des_dataparser.parseDataFileTail(df, PARSER_CONF).getProps()["timestamp"]
 			color = GREEN if t1 < t2 else RED
 			print colorTab(color) + colorText("%s: %s - %s" % (df, t1, t2), color)
 
@@ -58,7 +53,17 @@ def _output(files, filtered, args, config):
 		print colorTab(YELLOW) + colorText(line, YELLOW)
 
 	for df in filtered:
-		des_dataparser.parseLines(df, PARSER_CONF, cb, args.number_lines)
+		parseLines(args, config, df, cb)
+
+def _send(files, filtered, args, config):
+	es = Elasticsearch()
+	def cb(line):
+		es.index(index="disiem", doc_type="disiem", body=l.getProps())
+
+	for df in filtered:
+		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
+		parseLines(args, config, df, cb)
+		print colorTab(YELLOW) + colorText("done", YELLOW)
 
 def _noop(args, config):
 	pass
@@ -74,7 +79,22 @@ def getDataFiles(args, config):
 		verbosePass=(args.verbose > 1)
 	)
 
+	if args.include_files:
+		for f in args.include_files.split(","):
+			if f not in [x.getDataPath() for x in filtered]:
+				filtered.append(DataFile(config.getOption("data_location"), os.path.normpath(f)))
+
 	return (dataFiles, filtered)
+
+def parseLines(args, config, df, cb):
+	des_dataparser.parseLines(
+		df,
+		PARSER_CONF,
+		cb,
+		maxn=args.number_lines,
+		timebase=config.getOption("data_file_includes_timestamp"),
+		time_chunks=config.getOption("time_chunks")
+	)
 
 def printDataFileCounts(lenFiles, lenFiltered):
 	print colorTab(CYAN)
@@ -96,9 +116,9 @@ if __name__ == "__main__":
 		elif args.mode == "reset-elasticsearch": _resetElasticsearch(args, config)
 		
 		else:
-			if args.one_file:
-				df = DataFile(config.getOption("data_location"), os.path.normpath(args.one_file))
-				files, filtered = [df], [df]
+			if args.specific_files:
+				df = [DataFile(config.getOption("data_location"), os.path.normpath(x)) for x in args.specific_files.split(",")]
+				files, filtered = df, df
 			else:
 				files, filtered = getDataFiles(args, config)
 
