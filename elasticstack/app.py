@@ -1,4 +1,5 @@
 import os
+import time
 
 import des_argparser
 import des_configparser
@@ -75,8 +76,8 @@ def _resetElasticsearch(args, config):
 def getDataFiles(args, config):
 	dataFiles = des_filesearcher.getDataFiles(config.getOption("data_location"))
 	filtered = des_filesearcher.filterDataFiles(dataFiles, PARSER_CONF, config,
-		verboseFilter=(args.verbose > 0),
-		verbosePass=(args.verbose > 1)
+		verboseFilter=(args.verbose > 1),
+		verbosePass=(args.verbose > 2)
 	)
 
 	if args.include_files:
@@ -86,15 +87,33 @@ def getDataFiles(args, config):
 
 	return (dataFiles, filtered)
 
+linesParsed = 0
+
 def parseLines(args, config, df, cb):
+	global linesParsed
+	startTime = time.time()
+
+	def overCb(line):
+		global linesParsed
+		linesParsed += 1
+		return cb(line)
+
 	des_dataparser.parseLines(
 		df,
 		PARSER_CONF,
-		cb,
+		overCb,
 		maxn=args.number_lines,
 		timebase=config.getOption("data_file_includes_timestamp"),
 		time_chunks=config.getOption("time_chunks")
 	)
+
+	endTime = time.time()
+
+	if args.verbose > 0:
+		print colorTab(YELLOW) + colorText("Processed %d lines for latest data file" % linesParsed, YELLOW)
+		print colorTab(YELLOW) + colorText("Took %s seconds to process" % round(endTime - startTime, 3), YELLOW)
+
+	linesParsed = 0
 
 def printDataFileCounts(lenFiles, lenFiltered):
 	print colorTab(CYAN)

@@ -32,7 +32,7 @@ def printFilter(df, reason, p1=None, p2=None):
 		print colorTab(RED) + colorText("%s --- Filtered based on file size [%d]" % (df, df.getFileSize()), RED)
 	elif reason == "max_size":
 		print colorTab(RED) + colorText("%s --- Filtered based on file size [%d]" % (df, df.getFileSize()), RED)
-	elif reason == "included_timestamp":
+	elif reason == "data_file_includes_timestamp":
 		print colorTab(RED) + colorText("%s --- Filtered based on timestamp [%s - %s]" % (df, p1, p2), RED)
 
 def printPass(dataFile):

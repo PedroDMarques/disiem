@@ -19,6 +19,15 @@ OPTIONS = {
 		"parse_save": (lambda x: x),
 	},
 
+	"elasticsearch_index": {
+		"section": "LOCATION",
+		"format": "String",
+		"description": "elasticsearch_index description",
+		"default": "disiem_test",
+		"parse_load": (lambda x: x),
+		"parse_save": (lambda x: x),
+	},
+
 	"ignore_software": {
 		"section": "FILTERS",
 		"format": "List of strings separated by commas",
@@ -81,12 +90,22 @@ OPTIONS = {
 		"parse_load": (lambda x: x),
 		"parse_save": (lambda x: x),
 	},
+
+	"time_chunks": {
+		"section": "PARSING",
+		"format": "Integer in minutes",
+		"description": "time_chunks description",
+		"default": "60",
+		"parse_load": (lambda x: int(x) / 2 * 60),
+		"parse_save": (lambda x: x),
+	},
 }
 
 OPTIONS_ORDER = [
-	"data_location", "save_location", "ignore_software",
+	"data_location", "save_location", "elasticsearch_index", "ignore_software",
 	"ignore_device", "ignore_file_name", "ignore_file_extension",
 	"min_data_file_size", "max_data_file_size", "data_file_includes_timestamp",
+	"time_chunks",
 ]
 
 def getDefaultOptions():
