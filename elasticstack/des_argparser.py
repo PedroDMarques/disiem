@@ -24,7 +24,7 @@ def parseArgs():
 		help="Specify the location of a the data files to work on. This path should be relative to the 'data_location' config value and different files separated by commas"
 	)
 
-	parser.add_argument("-n", "--number-lines", default=1, type=int,
+	parser.add_argument("-n", "--number-lines", type=int,
 		help="When using in 'output' mode specifies the number of lines per file that should be outputed"
 	)
 

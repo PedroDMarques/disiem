@@ -56,6 +56,9 @@ def _output(files, filtered, args, config):
 	def cb(line):
 		print colorTab(YELLOW) + colorText(line, YELLOW)
 
+	if not args.number_lines:
+		args.number_lines = 1
+
 	for df in filtered:
 		parseLines(args, config, df, cb)
 
