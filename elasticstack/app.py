@@ -59,7 +59,7 @@ def _output(files, filtered, args, config):
 def _send(files, filtered, args, config):
 	es = Elasticsearch()
 	def cb(line):
-		es.index(index="disiem", doc_type="disiem", body=l.getProps())
+		es.index(index=config.getOption("elasticsearch_index"), doc_type=config.getOption("elasticsearch_index"), body=line.getProps())
 
 	for df in filtered:
 		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
