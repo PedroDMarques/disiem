@@ -59,7 +59,7 @@ def _output(files, filtered, args, config):
 def _send(files, filtered, args, config):
 	es = Elasticsearch()
 	def cb(line):
-		es.index(index=config.getOption("elasticsearch_index"), doc_type=config.getOption("elasticsearch_index"), body=line)
+		es.index(index=config.getOption("elasticsearch_index"), doc_type="disiem", body=line)
 
 	for df in filtered:
 		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
@@ -71,7 +71,7 @@ def _noop(args, config):
 
 def _resetElasticsearch(args, config):
 	es = Elasticsearch()
-	es.indices.delete(index="_all", ignore=[400, 404])
+	es.indices.delete(index=config.getOption("elasticsearch_index"), ignore=[400, 404])
 
 def getDataFiles(args, config):
 	dataFiles = des_filesearcher.getDataFiles(config.getOption("data_location"))
