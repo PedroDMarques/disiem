@@ -12,8 +12,11 @@ from PARSER_CONF import PARSER_CONF
 
 _indexCounter = 1
 
+global es
 try:
 	from elasticsearch import Elasticsearch
+	global es
+	es = Elasticsearch()
 except:
 	pass
 
@@ -57,8 +60,9 @@ def _output(files, filtered, args, config):
 		parseLines(args, config, df, cb)
 
 def _send(files, filtered, args, config):
-	es = Elasticsearch()
+	global es
 	def cb(line):
+		global es
 		es.index(index=config.getOption("elasticsearch_index"), doc_type="disiem", body=line)
 
 	for df in filtered:
@@ -96,7 +100,7 @@ def parseLines(args, config, df, cb):
 	def overCb(line):
 		global linesParsed
 		linesParsed += 1
-		return cb(line)
+		cb(line)
 
 	des_dataparser.parseLines(
 		df,
