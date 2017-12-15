@@ -76,7 +76,7 @@ def _send(files, filtered, args, config):
 
 def _createIndex(args, config):
 	global es
-	es.create(index=config.getOption("elasticsearch_index"), body=CREATE_INDEX)
+	es.index(index=config.getOption("elasticsearch_index"), body=CREATE_INDEX)
 
 def _noop(args, config):
 	pass
