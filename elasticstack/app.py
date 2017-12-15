@@ -9,6 +9,7 @@ from printUtil import *
 from DataFile import DataFile
 
 from PARSER_CONF import PARSER_CONF
+from CREATE_INDEX import CREATE_INDEX
 
 _indexCounter = 1
 
@@ -72,6 +73,10 @@ def _send(files, filtered, args, config):
 		print colorTab(YELLOW) + colorText("%s... processing and sending" % df, YELLOW)
 		parseLines(args, config, df, cb)
 		print colorTab(YELLOW) + colorText("done", YELLOW)
+
+def _createIndex(args, config):
+	global es
+	es.create(index=config.getOption("elasticsearch_index"), body=CREATE_INDEX)
 
 def _noop(args, config):
 	pass
@@ -140,7 +145,8 @@ if __name__ == "__main__":
 		if args.mode == "config-list": _configList(args, config)
 		elif args.mode == "noop": _noop(args, config)
 		elif args.mode == "reset-elasticsearch": _resetElasticsearch(args, config)
-		
+		elif args.mode == "create-index": _createIndex(args, config)
+
 		else:
 			if args.specific_files:
 				df = [DataFile(config.getOption("data_location"), os.path.normpath(x)) for x in args.specific_files.split(",")]
