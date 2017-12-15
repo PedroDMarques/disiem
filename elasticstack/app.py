@@ -85,9 +85,15 @@ def _createIndex(args, config):
 def _noop(args, config):
 	pass
 
+def _deleteIndex(args, config):
+	global es
+
+	index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
+	es.indices.delete(index=index, ignore=[400, 404])
+
 def _resetElasticsearch(args, config):
 	global es
-	
+
 	index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
 	es.indices.delete(index=index, ignore=[400, 404])
 
@@ -152,6 +158,7 @@ if __name__ == "__main__":
 		elif args.mode == "noop": _noop(args, config)
 		elif args.mode == "reset-elasticsearch": _resetElasticsearch(args, config)
 		elif args.mode == "create-index": _createIndex(args, config)
+		elif args.mode == "delete-index": _deleteIndex(args, config)
 
 		else:
 			if args.specific_files:
