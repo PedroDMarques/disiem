@@ -32,4 +32,8 @@ def parseArgs():
 		help="Specify the location of data files to force include in the parsing, even if they are to be filtered out. Should be a list of strings separated by commas"
 	)
 
+	parser.add_argument("--es-index",
+		help="Specify the elasticsearch index to use for the operation"
+	)
+
 	return parser.parse_args()
