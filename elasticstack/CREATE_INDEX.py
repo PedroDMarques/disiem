@@ -3,12 +3,13 @@ import json
 CREATE_INDEX = json.dumps({
 	"mappings": {
 		"disiem": {
-			"numeric_detection": True,
-
 			"properties": {
 				"username": {
-					"type": "keyword"
-				}
+					"type": "keyword",
+				},
+				"syslog_severity_code": {
+					"type": "integer",
+				},
 			}
 		},
 	}
