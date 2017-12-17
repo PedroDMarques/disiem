@@ -76,6 +76,8 @@ def _parse(files, filtered, args, config):
 		
 		elapsedSeconds = round(time.time() - startTime, 3)
 		print colorLog("info", "Finished processing, took %s seconds and processed %d lines" % (elapsedSeconds, nLines))
+		
+		nLines = 0
 
 def _parseSend(files, filtered, args, config):
 	nLines = 0
@@ -95,6 +97,8 @@ def _parseSend(files, filtered, args, config):
 
 		elapsedSeconds = round(time.time() - startTime, 3)
 		print colorLog("info", "Finished processing, took %s seconds and processed %d lines" % (elapsedSeconds, nLines))
+		
+		nLines = 0
 
 def _send(files, filtered, args, config):
 	global es
