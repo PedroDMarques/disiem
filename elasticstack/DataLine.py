@@ -7,7 +7,7 @@ class DataLine(object):
 		self.props = dict()
 
 		self.props["des_software_type"] = software
-		self.props["des_device_type"] = device
+		self.props["des_device_name"] = device
 
 		if conf["transfer_fields"]:
 			for field in conf["transfer_fields"]:

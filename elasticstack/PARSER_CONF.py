@@ -2,6 +2,35 @@ import datetime
 import dateutil.parser
 import pytz
 
+def parseSessionDuraction(val):
+	total = 0
+
+	valSplit = val.split(" ")
+	timeSplit = None
+	if len(valSplit) > 1:
+		timeSplit = valSplit[1]
+		dayCount = valSplit[0].split("d")[0]
+		if dayCount.isdigit():
+			total += int(dayCount) * 24 * 60 * 60
+	
+	else:
+		timeSplit = valSplit[0]
+
+	ts = timeSplit.split(":")
+	hourCount = ts[0].split("h")[0]
+	if hourCount.isdigit():
+		total += int(hourCount) * 60 * 60
+
+	minuteCount = ts[1].split("m")[0]
+	if minuteCount.isdigit():
+		total += int(minuteCount) * 60
+
+	secondCount = ts[2].split("s")[0]
+	if secondCount.isdigit():
+		total += int(secondCount)
+
+	return total
+
 PARSER_CONF = {
 	"general": {
 		# in seconds
@@ -15,7 +44,7 @@ PARSER_CONF = {
 		"transfer_fields": False,
 		# 'ignore_fields' is only used if 'transfer_fields' is False or empty.
 		# If using 'ignore_fields' we tranfer all of the fields from the original data except for the keys in this list
-		"ignore_fields": ["proto", "origin_ip", "source_port", "dest_ip", "dest_port", "timestamp", "ts"],
+		"ignore_fields": ["proto", "origin_ip", "source_port", "dest_ip", "dest_port", "timestamp", "ts", "sourceType", "sourcetype"],
 		# Transfer/Ignore fields is the first action taken, so fields might be overwriten with fields specified in 'parse_fields'
 		# The named fields that need to be the same for every file
 		"parse_fields": {
@@ -51,7 +80,7 @@ PARSER_CONF = {
 
 	"pan": {
 		"transfer_fields": False,
-		"ignore_fields": ["proto", "src", "srcPort", "dst", "dstPort", "datetime"],
+		"ignore_fields": ["proto", "src", "srcPort", "dst", "dstPort", "datetime", "totalBytes", "DeviceName", "sourceType", "ElapsedTime"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "src",
@@ -60,6 +89,10 @@ PARSER_CONF = {
 				"dst_port": "dstPort",
 				"timestamp": "datetime",
 				"protocol": "proto",
+				"des_total_bytes": "totalBytes",
+				"des_src_bytes": "srcBytes",
+				"des_dst_bytes": "dstBytes",
+				"des_session_duration": "ElapsedTime",
 			},
 			"parse": {
 				"timestamp": (lambda x: dateutil.parser.parse(x).replace(tzinfo=pytz.utc).isoformat()),
@@ -71,12 +104,15 @@ PARSER_CONF = {
 			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
 			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
 			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
+			
+			# Hack because pan can have "DeviceName" and it's more descriptive for the most part
+			"des_device_name": (lambda x: x["DeviceName"] if "DeviceName" in x else x["des_device_name"]),
 		},
 	},
 
 	"ciscoasa": {
 		"transfer_fields": False,
-		"ignore_fields": ["protocol", "src_ip", "src_port", "dst_ip", "dst_port", "@timestamp"],
+		"ignore_fields": ["protocol", "src_ip", "src_port", "dst_ip", "dst_port", "@timestamp", "type"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "src_ip",
@@ -101,7 +137,7 @@ PARSER_CONF = {
 
 	"ciscovpn": {
 		"transfer_fields": False,
-		"ignore_fields": ["ip", "@timestamp"],
+		"ignore_fields": ["ip", "@timestamp", "type", "session_duration"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "ip",
@@ -110,6 +146,8 @@ PARSER_CONF = {
 				"dst_port": False,
 				"timestamp": "@timestamp",
 				"protocol": False,
+				"des_src_bytes": "bytes_received",
+				"des_dst_bytes": "bytes_transmitted",
 			},
 			"parse": {
 				"timestamp": (lambda x: dateutil.parser.parse(x).replace(tzinfo=pytz.utc).isoformat()),
@@ -120,6 +158,9 @@ PARSER_CONF = {
 			"ip_pair": (lambda x: "%s -> %s" % (x["src_ip"], x["dst_ip"])),
 			"port_pair": (lambda x: "%s -> %s" % (x["src_port"], x["dst_port"])),
 			"ip_port_pair": (lambda x: "%s:%s -> %s:%s" % (x["src_ip"], x["src_port"], x["dst_ip"], x["dst_port"])),
+
+			"des_total_bytes": (lambda x: (int(x["bytes_received"]) + int(x["bytes_transmitted"])) if "bytes_received" in x and x["bytes_received"].isdigit() and "bytes_transmitted" in x and x["bytes_transmitted"].isdigit() else None),
+			"des_session_duration": (lambda x: parseSessionDuraction(x["session_duration"]) if "session_duration" in x else None),
 		},
 	},
 

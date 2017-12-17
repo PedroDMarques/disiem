@@ -2,7 +2,7 @@ bro:
 	"src_port": "58348",												# source_port
 	"sub": "host-qUQErVzxJsnIC/1zsT+6Bw==",
 	"des_software_type": "bro",											# software
-	"proto": "udp",														# protocol
+IGNORED -> "proto": "udp",														# protocol
 	"timestamp": "2017-04-16T10:09:57.210098+00:00",					# timestamp
 	"supress_for": "3600.000000",
 	"des_device_type": "bro",											# device
@@ -10,14 +10,14 @@ bro:
 	"actions": "Notice::ACTION_LOG",									# action
 	"signature": "Intel::Notice",
 	"src_ip": null,														# source_ip
-	"origin_ip": "176.151.248.82",
+IGNORED -> "origin_ip": "176.151.248.82",
 	"dropped": "F",														# Wether it was dropped or not (?)
 	"flow_id": "CeJlNf2X1uQEsMYmwf",
 	"msg": "Intel hit on lightpack.tv at DNS::IN_REQUEST",				# message
 	"dst_ip": "54.70.185.20",											# destination_ip
-	"sourceType": "bro",
+IGNORED -> "sourceType": "bro",
 	"dst_port": "53",													# destination_port
-	"sourcetype": "bro"
+IGNORED -> "sourcetype": "bro"
 
 ciscoasa:
 	"protocol": "tcp",													# protocol
@@ -28,7 +28,7 @@ ciscoasa:
     "hashcode1": "0xcea66419",
     "hashcode2": "0x7b646473",
     "src_ip": "10.30.39.20",											# source_ip
-    "type": "cisco-asa",
+IGNORED -> "type": "cisco-asa",
     "message_id": "106100",
     "timestamp": "2017-04-16T10:10:00+00:00",							# timestamp
     "des_device_type": "SYDFWO01",										# device
@@ -53,10 +53,10 @@ ciscovpn:
     "syslog_severity_code": 4,											# severity (might be able to correlate it with other data)
     "log_level": "4",
     "src_ip": "238.139.15.15",											# source_ip
-    "type": "cisco-vpn",
+IGNORED -> "type": "cisco-vpn",
     "message_id": "113019",
     "username": "Hecate",												# username (what is this ?)
-    "session_duration": "2d 4h:46m:49s",								# session duration
+IGNORED -> "session_duration": "2d 4h:46m:49s",								# session duration
     "session_type": "AnyConnect-Parent",								# session type
     "timestamp": "2017-04-16T10:09:47+00:00",							# timestamp
     "des_device_type": "ciscovpn",										# device
@@ -85,10 +85,10 @@ pan:
     "srcPostNAT": "0.0.0.0",											# source NAT (?)
     "Type": "TRAFFIC",
     "SessionEndReason": "aged-out",
-    "DeviceName": "jktfwo305a",											# device (this can differ from "des_device_type")
+IGNORED -> "DeviceName": "jktfwo305a",											# device (this can differ from "des_device_type")
     "src_port": "5416",													# source_port
     "server_name": "172.22.137.53",										# server name/ip (this can differ from src_ip ?)
-    "proto": "udp",														# protocol
+IGNORED -> "proto": "udp",														# protocol
     "RepeatCount": "1",
     "sequence": "6333719",
     "srcPostNATPort": "0",												# source NAT port (?)
@@ -98,17 +98,17 @@ pan:
     "SessionID": "133111",
     "DeviceGroupHierarchyL1": "0",
     "DeviceGroupHierarchyL4": "0",
-    "srcBytes": "90",													# source bytes
+IGNORED -> "srcBytes": "90",													# source bytes
     "totalPackets": "2",												# number packets (source and destination combined)
     "dst_port": "53",													# destination_port
     "dstPostNATPort": "0",												# destination NAT port (?)
-    "sourceType": "pan_firewall",
+IGNORED -> "sourceType": "pan_firewall",
     "timestamp": "2017-04-16T10:10:00+00:00",							# timestamp
     "IngressInterface": "ethernet1/4.101",								# ingress interface
     "des_device_type": "172.22.137.53",									# device (this can differ internally in the log file)
     "ActionFlags": "0x0",
     "dstPackets": "1",													# destination packets
-    "ElapsedTime": "0",													# elapsed time (in seconds ? milliseconds ?)
+IGNORED -> "ElapsedTime": "0",													# elapsed time (in seconds ? milliseconds ?)
     "Subtype": "end",
     "Flags": "0x19",
     "srcPackets": "1",													# source packets
@@ -130,7 +130,7 @@ suricata:
     "src_port": 49943,													# source_port
     "event_type": "alert",
     "stream": 0,
-    "proto": "UDP",														# protocol (seems to be all UDP for now)
+IGNORED -> "proto": "UDP",														# protocol (seems to be all UDP for now)
     "timestamp": "2017-04-16T10:08:47.422132+00:00",					# timestamp
     "des_device_type": "ncesecids05",									# device
     "in_iface": "eth2",													# in interface

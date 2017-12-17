@@ -1,5 +1,6 @@
 ﻿*.pyc
 data/
+data_parsed/
 data_elasticstack/
 data_elasticstack_experimental/
 env/

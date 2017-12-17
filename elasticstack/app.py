@@ -5,7 +5,8 @@ import des_argparser
 import des_configparser
 import des_filesearcher
 import des_dataparser
-from printUtil import *
+from des_printutil import *
+
 from DataFile import DataFile
 
 from PARSER_CONF import PARSER_CONF
@@ -26,9 +27,6 @@ def _configWrite(args):
 
 def _configList(args, config):
 	print config
-
-def _write(files, filtered, args, config):
-	print colorTab(RED) + colorText("Currently out of comission. Check back later...", RED)
 
 def _list(files, filtered, args, config):
 	print colorTab(YELLOW)
@@ -62,6 +60,41 @@ def _output(files, filtered, args, config):
 
 	for df in filtered:
 		parseLines(args, config, df, cb)
+
+def _parse(files, filtered, args, config):
+	global nLines
+	nLines = 0
+	def cb(line):
+		global nLines
+		nLines += 1
+
+	for df in filtered:
+		startTime = time.time()
+		print colorLog("info", "Processing... %s" % df)
+		
+		des_dataparser.parseFile(df, PARSER_CONF, config.getOption("save_location"), maxn=args.number_lines, cb=cb)
+		
+		elapsedSeconds = round(time.time() - startTime, 3)
+		print colorLog("info", "Finished processing, took %s seconds and processed %d lines" % (elapsedSeconds, nLines))
+
+def _parseSend(files, filtered, args, config):
+	nLines = 0
+	global es
+	def cb(line):
+		global es
+		nLines += 1
+
+		index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
+		es.index(index=index, doc_type="disiem", body=line)
+
+	for df in filtered:
+		startTime = time.time()
+		print colorLog("info", "Processing... %s" % df)
+
+		des_dataparser.parseFile(df, PARSER_CONF, config.getOption("save_location"), maxn=args.number_lines, cb=cb)
+
+		elapsedSeconds = round(time.time() - startTime, 3)
+		print colorLog("info", "Finished processing, took %s seconds and processed %d lines" % (elapsedSeconds, nLines))
 
 def _send(files, filtered, args, config):
 	global es
@@ -167,8 +200,9 @@ if __name__ == "__main__":
 			else:
 				files, filtered = getDataFiles(args, config)
 
-			if args.mode == "write": _write(files, filtered, args, config)
+			if args.mode == "parse": _parse(files, filtered, args, config)
 			elif args.mode == "send": _send(files, filtered, args, config)
+			elif args.mode == "parse-send" or args.mode == "send-parse": _parseSend(files, filtered, args, config)
 			elif args.mode == "list": _list(files, filtered, args, config)
 			elif args.mode == "impossible-timestamps": _impossibleTimestamps(files, filtered, args, config)
 			elif args.mode == "output": _output(files, filtered, args, config)

@@ -1,7 +1,7 @@
 import os
 import json
 
-from printUtil import *
+from des_printutil import *
 from DataLine import DataLine
 
 import dateutil.parser
@@ -9,6 +9,47 @@ try:
 	from elasticsearch import Elasticsearch
 except:
 	pass
+
+def parseFile(df, parser, savePath, maxn=False, cb=None):
+	softwareParser = parser[df.getSoftware()]
+
+	# mapping date to file to write in
+	outFiles = {}
+
+	with open(df.getAbsolutePath(), "r") as inFile:
+		n = 1
+		for line in inFile:
+			if maxn and n > maxn: break
+
+			# Hack for mcafee
+			if df.getSoftware() == "mcafee": line = r"%s" % line
+
+			l = DataLine(line, softwareParser, df.getSoftware(), df.getDevice())
+			props = l.getProps()
+			
+			fh = None
+
+			propDate = dateutil.parser.parse(props["timestamp"])
+			folderName = propDate.strftime("%Y-%m-%dT%H")
+			if folderName in outFiles:
+				fh = outFiles[folderName]
+
+			if not fh:
+				savingDir = os.path.normpath(os.path.join(savePath, folderName))
+				if not os.path.exists(savingDir):
+					os.makedirs(savingDir)
+
+				fh = open(os.path.normpath(os.path.join(savingDir, "%s-%s.txt" % (df.getSoftware(), props["des_device_name"]))), "a")
+				outFiles[folderName] = fh
+
+			fh.write(json.dumps(props) + "\n")
+
+			if cb:
+				cb(props)
+
+			n += 1
+
+	for f in outFiles: outFiles[f].close()
 
 def parseLines(df, conf, callback, maxn=False, timebase=None, time_chunks=60*30):
 	with open(df.getAbsolutePath(), "r") as inFile:

@@ -1,8 +1,10 @@
 import os
-from printUtil import *
-from DataFile import DataFile
 
 import des_dataparser
+from des_printutil import *
+
+from DataFile import DataFile
+
 
 def getDataFiles(basePath, cyclePath=""):
 	nextPath = os.path.join(basePath, cyclePath)
