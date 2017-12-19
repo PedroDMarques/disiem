@@ -112,14 +112,14 @@ def _sendParsed(args, config):
 	sendingFolders = os.path.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
 
 	for sf in sendingFolders:
-		hourFolder = os.path.join(saveFolder, sendingFolders)
+		hourFolder = os.path.normpath(os.path.join(saveFolder, sendingFolders))
 		
 		if not os.path.isdir(hourFolder):
 			continue
 
 		for fname in os.path.listdir(hourFolder):
 			startTime = time.time()
-			filePath = os.path.join(hourFolder, fname)
+			filePath = os.path.normpath(os.path.join(hourFolder, fname))
 
 			if not os.path.isdir(filePath):
 				print colorLog("info", "Processing... %s" % filePath)
