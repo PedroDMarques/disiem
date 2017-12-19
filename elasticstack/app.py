@@ -17,6 +17,7 @@ _indexCounter = 1
 
 global es
 try:
+	import elasticsearch
 	from elasticsearch import Elasticsearch
 	global es
 	es = Elasticsearch()
