@@ -100,6 +100,35 @@ def _parseSend(files, filtered, args, config):
 		
 		nLines = 0
 
+def _sendParsed(args, config):
+	global es
+	index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
+
+	saveFolder = config.getOption("save_location")
+	if not args.specific_files:
+		print colorLog("danger", "--specific-files is required for send-parsed. If you wish to send all the folders in the parsed data location, set --specific-files to 'all'")
+		return
+	
+	sendingFolders = os.path.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
+
+	for sf in sendingFolders:
+		hourFolder = os.path.join(saveFolder, sendingFolders)
+		
+		if not os.path.isdir(hourFolder):
+			continue
+
+		for fname in os.path.listdir(hourFolder):
+			startTime = time.time()
+			filePath = os.path.join(hourFolder, fname)
+
+			if not os.path.isdir(filePath):
+				print colorLog("info", "Processing... %s" % filePath)
+				with open(filePath, "r") as fh:
+					es.bulk(index=index, doc_type="disiem", body=fh.read())
+
+				elapsedSeconds = round(time.time() - startTime, 3)
+				print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
+
 def _send(files, filtered, args, config):
 	global es
 	def cb(line):
@@ -238,6 +267,7 @@ if __name__ == "__main__":
 		elif args.mode == "create-index": _createIndex(args, config)
 		elif args.mode == "delete-index": _deleteIndex(args, config)
 		elif args.mode == "rank-parsed": _rankParsed(args, config)
+		elif args.mode == "send-parsed": _sendParsed(args, config)
 
 		else:
 			if args.specific_files:
