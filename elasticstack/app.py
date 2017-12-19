@@ -158,19 +158,22 @@ def _rankParsed(args, config):
 		if os.path.isdir(p):
 			totalBytes = 0
 			totalDevices = 0
+			softwaresSeen = []
 			for fname in os.listdir(p):
 				np = os.path.join(p, fname)
 				if not os.path.isdir(np):
 					totalBytes += os.path.getsize(np)
 					totalDevices += 1
+					if fname.split("-")[0] not in softwaresSeen:
+						softwaresSeen.append(fname.split("-")[0])
 
-			folders[hourFolder] = (totalBytes, totalDevices)
+			folders[hourFolder] = (totalBytes, totalDevices, len(softwaresSeen))
 			topBytes = totalBytes if totalBytes > topBytes else topBytes
 			topDevices = totalDevices if totalDevices > topDevices else topDevices
 
 	saveLast = []
 	for f in folders:
-		toPrint = "%s - [%d bytes, %d devices]" % (f, folders[f][0], folders[f][1])
+		toPrint = "%s - [%d bytes, %d devices, %d different softwares]" % (f, folders[f][0], folders[f][1], folders[f][2])
 		wait = False
 		if folders[f][1] >= topDevices:
 			toPrint += " | top devices"
@@ -181,11 +184,18 @@ def _rankParsed(args, config):
 
 		if wait:
 			saveLast.append(toPrint)
+		elif folders[f][2] >= 6:
+			print colorLog("info", toPrint)
 		else:
 			print colorLog("danger", toPrint)
 
 	for p in saveLast:
 		print colorLog("success", p)
+
+	print colorTab(BLUE)
+	print colorLog("info-2", "Red = not top in bytes or devices and does not have all 6 softwares")
+	print colorLog("info-2", "Yellow = not top in bytes or devices but has all 6 softwares")
+	print colorLog("info-2", "Green = top in bytes and/or devices, might not have all 6 softwares")
 		
 
 def _createIndex(args, config):

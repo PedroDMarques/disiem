@@ -11,6 +11,7 @@ def colorLog(t, msg, color=None):
 		if t == "info": color = YELLOW
 		elif t == "warning" or t == "error" or t == "danger": color = RED
 		elif t == "success": color = GREEN
+		elif t == "info-2": color = BLUE
 		else: color = WHITE
 
 	return colorTab(color) + colorText(msg, color)
