@@ -12,5 +12,5 @@ class BulkIterator:
 		return {
 			"_index": self.indexName,
 			"_type": "document",
-			"_source": json.dumps(self.fh.readline()),
+			"_source": json.loads(self.fh.readline()),
 		}

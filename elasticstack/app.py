@@ -125,25 +125,13 @@ def _sendParsed(args, config):
 
 			if not os.path.isdir(filePath):
 				startTime = time.time()
-				
-				with open(filePath, "r") as fh:
-					i = 0
-					for t in BulkIterator(fh, index):
-						i += 1
-						if i > 10:
-							break
 
-						print t
-
-
-				"""
 				print colorLog("info", "Processing... %s" % filePath)
 				with open(filePath, "r") as fh:
 					elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index))
 
 				elapsedSeconds = round(time.time() - startTime, 3)
 				print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
-				"""
 
 def _send(files, filtered, args, config):
 	global es
