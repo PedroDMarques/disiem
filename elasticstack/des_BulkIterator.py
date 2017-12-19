@@ -10,6 +10,7 @@ class BulkIterator:
 
 	def next(self):
 		return {
+			"_op_type": "index",
 			"_index": self.indexName,
 			"_type": "document",
 			"_source": json.loads(self.fh.readline()),
