@@ -113,15 +113,20 @@ def _sendParsed(args, config):
 
 	for sf in sendingFolders:
 		hourFolder = os.path.join(saveFolder, sf)
+		print "here, %s" % hourFolder
 		
 		if not os.path.isdir(hourFolder):
+			print "here two"
 			continue
 
 		for fname in os.path.listdir(hourFolder):
-			startTime = time.time()
 			filePath = os.path.join(hourFolder, fname)
+			print "here 3, %s" % filePath
 
 			if not os.path.isdir(filePath):
+				print "here 4"
+				startTime = time.time()
+				
 				print colorLog("info", "Processing... %s" % filePath)
 				with open(filePath, "r") as fh:
 					es.bulk(index=index, doc_type="disiem", body=fh.read())
