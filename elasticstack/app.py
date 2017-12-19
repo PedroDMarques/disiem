@@ -8,6 +8,7 @@ import des_dataparser
 from des_printutil import *
 
 from DataFile import DataFile
+from des_BulkIterator import BulkIterator
 
 from PARSER_CONF import PARSER_CONF
 from CREATE_INDEX import CREATE_INDEX
@@ -125,7 +126,7 @@ def _sendParsed(args, config):
 				
 				print colorLog("info", "Processing... %s" % filePath)
 				with open(filePath, "r") as fh:
-					es.bulk(index=index, doc_type="disiem", body=fh.read())
+					elasticsearch.helpers.bulk(es, BulkIterator(fh, index))
 
 				elapsedSeconds = round(time.time() - startTime, 3)
 				print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
