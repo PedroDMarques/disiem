@@ -126,13 +126,14 @@ def _sendParsed(args, config):
 			if not os.path.isdir(filePath):
 				startTime = time.time()
 				
-				i = 0
-				for t in BulkIterator(fh, index):
-					i += 1
-					if i > 10:
-						break
+				with open(filePath, "r") as fh:
+					i = 0
+					for t in BulkIterator(fh, index):
+						i += 1
+						if i > 10:
+							break
 
-					print t
+						print t
 
 
 				"""
