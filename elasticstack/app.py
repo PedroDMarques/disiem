@@ -127,8 +127,9 @@ def _sendParsed(args, config):
 				startTime = time.time()
 
 				print colorLog("info", "Processing... %s" % filePath)
-				with open(filePath, "r") as fh:
-					elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index), stats_only=True)
+				
+				fh = open(filePath, "r")
+				elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index), stats_only=True)
 
 				elapsedSeconds = round(time.time() - startTime, 3)
 				print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
