@@ -70,7 +70,7 @@ CREATE_INDEX = json.dumps({
 				"EgressInterface": { "type": "keyword" },
 				"SourceZone": { "type": "keyword" },
 				"LogForwardingProfile": { "type": "keyword" },
-				"SerialNumber": { "type": "integer" },
+				"SerialNumber": { "type": "keyword" },
 				"DestinationZone": { "type": "keyword" },
 				"DestinationLocation": { "type": "keyword" },
 				"Application": { "type": "keyword" },
