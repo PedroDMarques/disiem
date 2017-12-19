@@ -9,9 +9,15 @@ class BulkIterator:
 		return self
 
 	def next(self):
-		return {
-			"_op_type": "index",
-			"_index": self.indexName,
-			"_type": "disiem",
-			"_source": json.loads(self.fh.readline()),
-		}
+		line = self.fh.readline()
+
+		if not line:
+			raise StopIteration()
+
+		else:
+			return {
+				"_op_type": "index",
+				"_index": self.indexName,
+				"_type": "disiem",
+				"_source": json.loads(line),
+			}
