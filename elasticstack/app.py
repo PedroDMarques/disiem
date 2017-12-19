@@ -18,6 +18,7 @@ _indexCounter = 1
 global es
 try:
 	import elasticsearch
+	import elasticsearch.helpers
 	from elasticsearch import Elasticsearch
 	global es
 	es = Elasticsearch()
