@@ -113,6 +113,47 @@ def _send(files, filtered, args, config):
 		parseLines(args, config, df, cb)
 		print colorTab(YELLOW) + colorText("done", YELLOW)
 
+def _rankParsed(args, config):
+	folders = dict()
+	topBytes = None
+	topDevices = None
+
+	parsedFolder = config.getOption("save_location")
+	for hourFolder in os.listdir(parsedFolder):
+		p = os.path.join(parsedFolder, hourFolder)
+		if os.path.isdir(p):
+			totalBytes = 0
+			totalDevices = 0
+			for fname in os.listdir(p):
+				np = os.path.join(p, fname)
+				if not os.path.isdir(np):
+					totalBytes += os.path.getsize(np)
+					totalDevices += 1
+
+			folders[hourFolder] = (totalBytes, totalDevices)
+			topBytes = totalBytes if totalBytes > topBytes else topBytes
+			topDevices = totalDevices if totalDevices > topDevices else topDevices
+
+	saveLast = []
+	for f in folders:
+		toPrint = "%s - [%d bytes, %d devices]" % (f, folders[f][0], folders[f][1])
+		wait = False
+		if folders[f][1] >= topDevices:
+			toPrint += " | top devices"
+			wait = True
+		if folders[f][0] >= topBytes:
+			toPrint += " | top bytes"
+			wait = True
+
+		if wait:
+			saveLast.append(toPrint)
+		else:
+			print colorLog("danger", toPrint)
+
+	for p in saveLast:
+		print colorLog("success", p)
+		
+
 def _createIndex(args, config):
 	global es
 
@@ -196,6 +237,7 @@ if __name__ == "__main__":
 		elif args.mode == "reset-elasticsearch": _resetElasticsearch(args, config)
 		elif args.mode == "create-index": _createIndex(args, config)
 		elif args.mode == "delete-index": _deleteIndex(args, config)
+		elif args.mode == "rank-parsed": _rankParsed(args, config)
 
 		else:
 			if args.specific_files:
