@@ -140,6 +140,37 @@ CREATE_INDEX = json.dumps({
 				"dns.rrtype": { "type": "keyword" },
 				"dnt.ttl": { "type": "long" },
 				"dns.type": { "type": "keyword" },
+
+				# Mcafee
+				# ------
+				"is_laptop": { "type": "keyword" },
+				"dest_dns": { "type": "keyword" },
+				"detected_timestamp": { "type": "date"},
+				"product_version": { "type": "keyword" },
+				"logon_user": { "type": "keyword" },
+				"threat_type": { "type": "keyword" },
+				"category": { "type": "keyword" },
+				"event_description": { "type": "keyword" },
+				"fqdn": { "type": "keyword" },
+				"vse_engine64_version": { "type": "keyword" },
+				"detected_method": { "type": "keyword" },
+				"vendor_action": { "type": "keyword" },
+				"os_version": { "type": "keyword" },
+				"dest_mac": { "type": "keyword" },
+				"vse_engine_version": { "type": "keyword" },
+				"vse_product_version": { "type": "keyword" },
+				"signature_id": { "type": "keyword" },
+				"threat_handled": { "type": "keyword" },
+				"product": { "type": "keyword" },
+				"severity_id": { "type": "integer" },
+				"AutoID": { "type": "keyword" },
+				"vse_hotfix": { "type": "keyword" },
+				"sp": { "type": "keyword" },
+				"engine_version": { "type": "keyword" },
+				"dat_version": { "type": "keyword" },
+				"vse_dat_version": { "type": "keyword" },
+				"os": { "type": "keyword" },
+				"os_build": { "type": "keyword" }
 			}
 		},
 	}

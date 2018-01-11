@@ -137,7 +137,7 @@ PARSER_CONF = {
 
 	"ciscovpn": {
 		"transfer_fields": False,
-		"ignore_fields": ["ip", "@timestamp", "type", "session_duration"],
+		"ignore_fields": ["ip", "@timestamp", "type"],
 		"parse_fields": {
 			"fields": {
 				"src_ip": "ip",
