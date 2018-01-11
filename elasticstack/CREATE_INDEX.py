@@ -145,7 +145,6 @@ CREATE_INDEX = json.dumps({
 				# ------
 				"is_laptop": { "type": "keyword" },
 				"dest_dns": { "type": "keyword" },
-				"detected_timestamp": { "type": "date"},
 				"product_version": { "type": "keyword" },
 				"logon_user": { "type": "keyword" },
 				"threat_type": { "type": "keyword" },
