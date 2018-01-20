@@ -113,9 +113,8 @@ def _sendParsed(args, config):
 		print colorLog("danger", "--specific-files is required for send-parsed. If you wish to send all the folders in the parsed data location, set --specific-files to 'all'")
 		return
 	
-	sendingFolders = os.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
-
 	for saveFolder in saveFolders:
+		sendingFolders = os.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
 		for sf in sendingFolders:
 			hourFolder = os.path.join(saveFolder, sf)
 			
