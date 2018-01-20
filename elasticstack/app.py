@@ -107,32 +107,37 @@ def _sendParsed(args, config):
 	global es
 	index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
 
-	saveFolder = config.getOption("save_location")
+	ignoreSoftware = config.getOption("ignore_software")
+	saveFolders = config.getOption("save_location")
 	if not args.specific_files:
 		print colorLog("danger", "--specific-files is required for send-parsed. If you wish to send all the folders in the parsed data location, set --specific-files to 'all'")
 		return
 	
 	sendingFolders = os.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
 
-	for sf in sendingFolders:
-		hourFolder = os.path.join(saveFolder, sf)
-		
-		if not os.path.isdir(hourFolder):
-			continue
+	for saveFolder in saveFolders:
+		for sf in sendingFolders:
+			hourFolder = os.path.join(saveFolder, sf)
+			
+			if not os.path.isdir(hourFolder):
+				continue
 
-		for fname in os.listdir(hourFolder):
-			filePath = os.path.join(hourFolder, fname)
+			for fname in os.listdir(hourFolder):
+				software = fname.split("-")[0]
 
-			if not os.path.isdir(filePath):
-				startTime = time.time()
+				filePath = os.path.join(hourFolder, fname)
 
-				print colorLog("info", "Processing... %s" % filePath)
-				with open(filePath, "r") as fh:
-					for ok,item in elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index)):
-						pass
+				if not os.path.isdir(filePath) and software not in ignoreSoftware:
+					startTime = time.time()
 
-				elapsedSeconds = round(time.time() - startTime, 3)
-				print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
+					print colorLog("info", "Processing... %s" % filePath)
+					if not args.testing:
+						with open(filePath, "r") as fh:
+							for ok,item in elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index)):
+								pass
+
+					elapsedSeconds = round(time.time() - startTime, 3)
+					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
 
 def _send(files, filtered, args, config):
 	global es

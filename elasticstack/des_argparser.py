@@ -36,4 +36,8 @@ def parseArgs():
 		help="Specify the elasticsearch index to use for the operation"
 	)
 
+	parser.add_argument("--testing", action="store_true",
+		help="Used for debuging"
+	)
+
 	return parser.parse_args()

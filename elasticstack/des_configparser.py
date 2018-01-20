@@ -12,11 +12,11 @@ OPTIONS = {
 
 	"save_location": {
 		"section": "LOCATION",
-		"format": "String",
+		"format": "List of strings separated by commas",
 		"description": "save_location description",
 		"default": "../data_parsed",
-		"parse_load": (lambda x: x),
-		"parse_save": (lambda x: x),
+		"parse_load": (lambda x: x.split(",")),
+		"parse_save": (lambda x: ",".join(x) if type(x) == list else x),
 	},
 
 	"elasticsearch_index": {
