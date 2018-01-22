@@ -1,6 +1,10 @@
 import json
 
 CREATE_INDEX = json.dumps({
+	"settings": {
+		"number_of_shards": 10,
+		"number_of_replicas": 1,
+	},
 	"mappings": {
 		"disiem": {
 			"properties": {
