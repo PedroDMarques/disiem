@@ -21,7 +21,7 @@ try:
 	import elasticsearch.helpers
 	from elasticsearch import Elasticsearch
 	global es
-	es = Elasticsearch(timeout=0.1)
+	es = Elasticsearch(timeout=300)
 except:
 	pass
 
@@ -132,8 +132,11 @@ def _sendParsed(args, config):
 					print colorLog("info", "Processing... %s" % filePath)
 					if not args.testing:
 						with open(filePath, "r") as fh:
-							for ok,item in elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index)):
-								pass
+							try:
+								for ok,item in elasticsearch.helpers.streaming_bulk(es, BulkIterator(fh, index)):
+									pass
+							except elasticsearch.exceptions.ConnectionTimeout:
+								print colorLog("danger", "Connection timeout occurred. Ignoring... (data may have been lost)")
 
 					elapsedSeconds = round(time.time() - startTime, 3)
 					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
@@ -206,10 +209,7 @@ def _createIndex(args, config):
 	global es
 
 	index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
-	try:
-		es.indices.create(index=index, body=CREATE_INDEX)
-	except elasticsearch.exceptions.ConnectionTimeout:
-		print "Connection timeout!!!!"
+	es.indices.create(index=index, body=CREATE_INDEX)
 
 def _noop(args, config):
 	pass
