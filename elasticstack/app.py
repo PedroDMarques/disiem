@@ -206,7 +206,10 @@ def _createIndex(args, config):
 	global es
 
 	index = args.es_index if args.es_index else config.getOption("elasticsearch_index")
-	es.indices.create(index=index, body=CREATE_INDEX)
+	try:
+		es.indices.create(index=index, body=CREATE_INDEX)
+	except elasticsearch.exceptions.ConnectionTimeout:
+		print "Connection timeout!!!!"
 
 def _noop(args, config):
 	pass
