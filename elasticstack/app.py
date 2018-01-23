@@ -21,7 +21,7 @@ try:
 	import elasticsearch.helpers
 	from elasticsearch import Elasticsearch
 	global es
-	es = Elasticsearch()
+	es = Elasticsearch(timeout=0.1)
 except:
 	pass
 
