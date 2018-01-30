@@ -160,30 +160,30 @@ def collectFile(collectionPath, hourPath, filePath, software, device, fh):
 	reader = CollectionReader(os.path.join(savingDir, "%s-%s.txt" % (software, device)))
 	
 	readerProps = reader.getProps()
-	readerProps["alerts"] = readerProps.get("alerts", 0) + alerts
+	readerProps["alerts"] = int(readerProps.get("alerts", 0)) + alerts
 	for k in protocol:
-		readerProps["protocol_%s" % k] = readerProps.get("protocol_%s" % k, 0) + protocol[k]
+		readerProps["protocol_%s" % k] = int(readerProps.get("protocol_%s" % k, 0)) + protocol[k]
 
 	if software == "pan":
-		readerProps["srcBytes"] = readerProps.get("srcBytes", 0) + srcBytes
-		readerProps["dstBytes"] = readerProps.get("dstBytes", 0) + dstBytes
-		readerProps["totalBytes"] = readerProps.get("totalBytes", 0) + totalBytes
-		readerProps["srcPackets"] = readerProps.get("srcPackets", 0) + srcPackets
-		readerProps["dstPackets"] = readerProps.get("dstPackets", 0) + dstPackets
-		readerProps["totalPackets"] = readerProps.get("totalPackets", 0) + totalPackets
+		readerProps["srcBytes"] = int(readerProps.get("srcBytes", 0)) + srcBytes
+		readerProps["dstBytes"] = int(readerProps.get("dstBytes", 0)) + dstBytes
+		readerProps["totalBytes"] = int(readerProps.get("totalBytes", 0)) + totalBytes
+		readerProps["srcPackets"] = int(readerProps.get("srcPackets", 0)) + srcPackets
+		readerProps["dstPackets"] = int(readerProps.get("dstPackets", 0)) + dstPackets
+		readerProps["totalPackets"] = int(readerProps.get("totalPackets", 0)) + totalPackets
 		for k in sourceZone:
-			readerProps["sourceZone_%s" % k] = readerProps.get("sourceZone_%s" % k, 0) + sourceZone[k]
+			readerProps["sourceZone_%s" % k] = int(readerProps.get("sourceZone_%s" % k, 0)) + sourceZone[k]
 		for k in destinationZone:
-			readerProps["destinationZone_%s" % k] = readerProps.get("destinationZone_%s" % k, 0) + destinationZone[k]
+			readerProps["destinationZone_%s" % k] = int(readerProps.get("destinationZone_%s" % k, 0)) + destinationZone[k]
 		for k in application:
-			readerProps["application_%s" % k] = readerProps.get("application_%s" % k, 0) + application[k]
+			readerProps["application_%s" % k] = int(readerProps.get("application_%s" % k, 0)) + application[k]
 		for k in cat:
-			readerProps["cat_%s" % k] = readerProps.get("cat_%s" % k, 0) + cat[k]
+			readerProps["cat_%s" % k] = int(readerProps.get("cat_%s" % k, 0)) + cat[k]
 		for k in sessionEndReason:
-			readerProps["sessionEndReason_%s" % k] = readerProps.get("sessionEndReason_%s" % k, 0) + sessionEndReason[k]
+			readerProps["sessionEndReason_%s" % k] = int(readerProps.get("sessionEndReason_%s" % k, 0)) + sessionEndReason[k]
 
 	elif software == "ciscoasa":
-		readerProps["sumSeverityLevel"] = readerProps.get("sumSeverityLevel", 0) + sumSeverityLevel
+		readerProps["sumSeverityLevel"] = int(readerProps.get("sumSeverityLevel", 0)) + sumSeverityLevel
 		minimum = readerProps.get("minSeverityLevel", None)
 		if minSeverityLevel < minimum or not minimum:
 			readerProps["minSeverityLevel"] = minSeverityLevel
@@ -193,9 +193,9 @@ def collectFile(collectionPath, hourPath, filePath, software, device, fh):
 
 	elif software == "suricata":
 		for k in eventType:
-			readerProps["eventType_%s" % k] = readerProps.get("eventType_%s" % k, 0) + eventType[k]
+			readerProps["eventType_%s" % k] = int(readerProps.get("eventType_%s" % k, 0)) + eventType[k]
 		for k in httpStatus:
-			readerProps["httpStatus_%s" % k] = readerProps.get("httpStatus_%s" % k, 0) + httpStatus[k]
+			readerProps["httpStatus_%s" % k] = int(readerProps.get("httpStatus_%s" % k, 0)) + httpStatus[k]
 
 	reader.setProps(readerProps)
 	reader.writeFile()
