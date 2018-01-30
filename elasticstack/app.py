@@ -5,6 +5,7 @@ import des_argparser
 import des_configparser
 import des_filesearcher
 import des_dataparser
+import des_collectionreader
 from des_printutil import *
 
 from DataFile import DataFile
@@ -102,6 +103,40 @@ def _parseSend(files, filtered, args, config):
 		print colorLog("info", "Finished processing, took %s seconds and processed %d lines" % (elapsedSeconds, nLines))
 		
 		nLines = 0
+
+def _collectParsed(args, config):
+	ignoreSoftware = config.getOption("ignore_software")
+	saveFolders = config.getOption("save_location")
+	collectionFolder = config.getOption("collection_location")
+
+	if not args.specific_files:
+		print colorLog("danger", "--specific-files is required for collect-parsed. If you wish to send all the folders in the parsed data location, set --specific-files to 'all'")
+		return
+
+	for saveFolder in saveFolders:
+		sendingFolders = os.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
+		for sf in sendingFolders:
+			hourFolder = os.path.join(saveFolder, sf)
+
+			if not os.path.isdir(hourFolder):
+				return
+
+			for fname in os.listdir(hourFolder):
+				software, device = fname.split("-")
+				filePath = os.path.join(hourFolder, fname)
+
+				if not os.path.isdir(filePath) and software not in ignoreSoftware:
+					startTime = time.time()
+					print colorLog("info", "Processing... %s" % filePath)
+					if not args.testing:
+						with open(filePath, "r") as fh:
+							processed = des_collectionreader.collectFile(collectionFolder, sf, filePath, software, device, fh)
+							if not processed:
+								print colorLog("danger", "Did not process because already collected this file before")
+
+					elapsedSeconds = round(time.time() - startTime, 3)
+					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
+
 
 def _sendParsed(args, config):
 	global es
@@ -290,6 +325,7 @@ if __name__ == "__main__":
 		elif args.mode == "delete-index": _deleteIndex(args, config)
 		elif args.mode == "rank-parsed": _rankParsed(args, config)
 		elif args.mode == "send-parsed": _sendParsed(args, config)
+		elif args.mode == "collect-parsed": _collectParsed(args, config)
 
 		else:
 			if args.specific_files:

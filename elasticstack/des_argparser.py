@@ -9,7 +9,7 @@ def parseArgs():
 		help="With -v each file filtered will be shown. With -vv both files filtered and passed will be shown")
 	
 	parser.add_argument("mode", 
-		choices=["parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index"]
+		choices=["parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed"]
 	)
 
 	parser.add_argument("-c", "--config", default="config.cfg", dest="config_location",
