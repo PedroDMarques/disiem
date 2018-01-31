@@ -76,7 +76,7 @@ def _parse(files, filtered, args, config):
 		startTime = time.time()
 		print colorLog("info", "Processing... %s" % df)
 		
-		des_dataparser.parseFile(df, PARSER_CONF, config.getOption("save_location"), maxn=args.number_lines, cb=cb)
+		des_dataparser.parseFile(df, PARSER_CONF, config.getOption("save_location")[0], maxn=args.number_lines, cb=cb)
 		
 		elapsedSeconds = round(time.time() - startTime, 3)
 		print colorLog("info", "Finished processing, took %s seconds and processed %d lines" % (elapsedSeconds, nLines))
