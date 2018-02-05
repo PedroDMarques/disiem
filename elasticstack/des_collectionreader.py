@@ -32,7 +32,7 @@ def commitFileCollected(metaPath, fileDesc, metaName="meta_filesCollected"):
 	with open(os.path.join(metaPath, metaName), "a") as f:
 		f.write(fileDesc + "\n")
 
-def hasFileBeenCollected(metaPath, fileDesc):
+def hasFileBeenCollected(metaPath, fileDesc, metaName="meta_filesCollected"):
 	try:
 		with open(os.path.join(metaPath, metaName), "r") as f:
 			for line in f:
