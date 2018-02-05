@@ -6,7 +6,12 @@ import des_configparser
 import des_filesearcher
 import des_dataparser
 import des_collectionreader
-import des_plotter
+
+try:
+	import des_plotter
+except:
+	pass
+
 from des_printutil import *
 
 from DataFile import DataFile
