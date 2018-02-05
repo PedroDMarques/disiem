@@ -28,13 +28,13 @@ class CollectionReader(object):
 		except IOError:
 			pass
 
-def commitFileCollected(metaPath, fileDesc):
-	with open(os.path.join(metaPath, "meta_filesCollected"), "a") as f:
+def commitFileCollected(metaPath, fileDesc, metaName="meta_filesCollected"):
+	with open(os.path.join(metaPath, metaName), "a") as f:
 		f.write(fileDesc + "\n")
 
 def hasFileBeenCollected(metaPath, fileDesc):
 	try:
-		with open(os.path.join(metaPath, "meta_filesCollected"), "r") as f:
+		with open(os.path.join(metaPath, metaName), "r") as f:
 			for line in f:
 				if line[:-1] == fileDesc:
 					return True
@@ -43,6 +43,17 @@ def hasFileBeenCollected(metaPath, fileDesc):
 
 	return False
 
+def collectFileEx(collectionPath, hourPath, filePath, software, device, fh):
+	if hasFileBeenCollected(collectionPath, filePath, metaName="meta_filesCollectedEx"):
+		return false
+
+	srcDstPairs = set()
+	for line in fh:
+		lineProps = json.loads(line)
+
+		srcDstPairs.add("%s:%s-%s:%s" % (lineProps["src_ip"], lineProps["src_port"], lineProps["dst_ip"], lineProps["dst_port"]))
+	
+	print "Unique pairs: ", len(srcDstPairs)
 
 def collectFile(collectionPath, hourPath, filePath, software, device, fh):
 	if hasFileBeenCollected(collectionPath, filePath):

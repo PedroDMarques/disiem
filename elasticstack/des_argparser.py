@@ -9,7 +9,7 @@ def parseArgs():
 		help="With -v each file filtered will be shown. With -vv both files filtered and passed will be shown")
 	
 	parser.add_argument("mode", 
-		choices=["parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed"]
+		choices=["plot","parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed", "collect-parsed-ex"]
 	)
 
 	parser.add_argument("-c", "--config", default="config.cfg", dest="config_location",
@@ -34,6 +34,11 @@ def parseArgs():
 
 	parser.add_argument("--es-index",
 		help="Specify the elasticsearch index to use for the operation"
+	)
+
+	parser.add_argument("-p", "--plot",
+		choices=["software-alerts", "suricata-alerts", "ciscoasa-alerts", "pan-alerts", "device-alerts", 
+			"suricata-protocol", "ciscoasa-protocol", "pan-protocol"]
 	)
 
 	parser.add_argument("--testing", action="store_true",
