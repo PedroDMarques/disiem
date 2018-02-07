@@ -1,5 +1,6 @@
 import os
 import json
+import itertools
 
 class CollectionReader(object):
 	def __init__(self, filePath):
@@ -43,17 +44,63 @@ def hasFileBeenCollected(metaPath, fileDesc, metaName="meta_filesCollected"):
 
 	return False
 
-def collectFileEx(collectionPath, hourPath, filePath, software, device, fh):
-	if hasFileBeenCollected(collectionPath, filePath, metaName="meta_filesCollectedEx"):
+def collectDiv(collectionPath, files, hourFolder):
+	"""
+	files should be a list like [filePath, software, device]
+	"""
+	## Check if we've already collected for this hour folder
+	if hasFileBeenCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv"):
 		return false
 
-	srcDstPairs = set()
-	for line in fh:
-		lineProps = json.loads(line)
+	pairs = dict()
+	## Collect all the unique pairs for each of the files, and keep in memory their occurences
+	for filePath, software, device in files:
+		pairs[software] = pairs.get(software, dict())
+		with open(filePath, "r") as fh:
+			for line in fh:
+				lineProps = json.loads(line)
 
-		srcDstPairs.add("%s:%s-%s:%s" % (lineProps["src_ip"], lineProps["src_port"], lineProps["dst_ip"], lineProps["dst_port"]))
+				pairProps = ["src_ip", "src_port", "dst_ip", "dst_port"]
+				# If all these exist in the line
+				if set(pairProps) <= set(lineProps):
+					pair = "%s:%s-%s:%s" % (lineProps["src_ip"], lineProps["src_port"], lineProps["dst_ip"], lineProps["dst_port"])
+					protocol = lineProps.get("protocol")
+					timestamp = lineProps.get("timestamp")
+					toApp = [device, protocol, timestamp]
+					pairs[software][pair] = pairs[software].get(pair, []).append(toApp)
+
+	pairsSet = dict()
+	for k in pairs:
+		pairsSet[k] = set(pairs[k].keys())
+
+	## For each combination of the softwares find the matching pairs
+	for i in range(2, len(pairs)+1):
+		for softwareCombination in itertools.combinations(sorted(pairs), i):
+			inter = None
+			for software in softwareCombination:
+				intersection = pairsSet[software] if inter == None else inter.intersection(pairsSet[software])
+			
+
+			savingDir = os.path.join(collectionPath, hourFolder)
+			if not os.path.exists(savingDir):
+				os.makedirs(savingDir)
+
+			saveFileName = softwareCombination[0]
+			for sof in range(1, len(softwareCombination)+1):
+				saveFileName = saveFileName + ("-%s" % softwareCombination[sof])
+			
+			savePath = os.path.join(collectionPath, hourFolder, saveFileName)
+			with open(savePath, "w") as fh:
+				for srcDstPair in inter:
+					for software in softwareCombination:
+						for instance in pairs[software][srcDstPair]:
+							toWrite = srcDstPair
+							for d in instance:
+								toWrite += ",%s" % d
+							fh.write("%s\n" % toWrite)
 	
-	print "Unique pairs: ", len(srcDstPairs)
+	commitFileCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv")			
+	return True
 
 def collectFile(collectionPath, hourPath, filePath, software, device, fh):
 	if hasFileBeenCollected(collectionPath, filePath):

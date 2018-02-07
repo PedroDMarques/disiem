@@ -9,7 +9,7 @@ def parseArgs():
 		help="With -v each file filtered will be shown. With -vv both files filtered and passed will be shown")
 	
 	parser.add_argument("mode", 
-		choices=["plot","parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed", "collect-parsed-ex"]
+		choices=["plot","parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed", "collect-parsed-div"]
 	)
 
 	parser.add_argument("-c", "--config", default="config.cfg", dest="config_location",
@@ -36,13 +36,21 @@ def parseArgs():
 		help="Specify the elasticsearch index to use for the operation"
 	)
 
-	parser.add_argument("-p", "--plot",
-		choices=["software-alerts", "suricata-alerts", "ciscoasa-alerts", "pan-alerts", "device-alerts", 
-			"suricata-protocol", "ciscoasa-protocol", "pan-protocol"]
+	plotChoices = ["all", "software-alerts", "suricata-alerts", "ciscoasa-alerts", "pan-alerts", "device-alerts", 
+			"suricata-protocol", "ciscoasa-protocol", "pan-protocol",
+			"pan-destinationZone", "pan-sourceZone", "pan-application", "pan-cat", "pan-sessionEndReason",
+			"suricata-eventType", "suricata-httpStatus",
+			"pie-software-alerts", "pie-suricata-alerts", "pie-ciscoasa-alerts", "pie-pan-alerts"]
+	
+	parser.add_argument("-p", "--plot", choices=plotChoices)
+	parser.add_argument("-s", "--save-plot", action="store_true",
+		help="Save plot to image instead of showing it"
 	)
 
 	parser.add_argument("--testing", action="store_true",
 		help="Used for debuging"
 	)
 
-	return parser.parse_args()
+	d = parser.parse_args()
+	d.plotChoices = plotChoices
+	return d

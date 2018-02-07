@@ -117,7 +117,12 @@ def _plot(args, config):
 		print colorLog("danger", "-p or --plot is required for plot")
 		return
 
-	des_plotter.plot(collectionFolder, args.plot)
+	if args.plot == "all":
+		for x in args.plotChoices:
+			if x != "all":
+				des_plotter.plot(collectionFolder, x, args.save_plot, config.getOption("plot_save_location"))
+	else:
+		des_plotter.plot(collectionFolder, args.plot, args.save_plot, config.getOption("plot_save_location"))
 
 def _collectParsed(args, config):
 	ignoreSoftware = config.getOption("ignore_software")
@@ -152,38 +157,42 @@ def _collectParsed(args, config):
 					elapsedSeconds = round(time.time() - startTime, 3)
 					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
 
-def _collectParsedEx(args, config):
+def _collectParsedDiv(args, config):
 	ignoreSoftware = config.getOption("ignore_software")
 	saveFolders = config.getOption("save_location")
-	collectionFolder = config.getOption("collection_location")
+	collectionFolder = config.getOption("collection_div_location")
 
-	if not args.specific_files:
-		print colorLog("danger", "--specific-files is required for collect-parsed. If you wish to send all the folders in the parsed data location, set --specific-files to 'all'")
-		return
-
+	hourFolders = dict()
 	for saveFolder in saveFolders:
-		sendingFolders = os.listdir(saveFolder) if args.specific_files == "all" else args.specific_files.split(",")
-		for sf in sendingFolders:
-			hourFolder = os.path.join(saveFolder, sf)
-
-			if not os.path.isdir(hourFolder):
+		hFolders = os.listdir(saveFolder)
+		for hourFolder in hFolders:
+			hourFolderPath = os.path.join(saveFolder, hourFolder)
+			if not os.path.isdir(hourFolderPath):
 				return
-
-			for fname in os.listdir(hourFolder):
+			
+			for fname in os.listdir(hourFolderPath):
 				software, device = fname.split("-")
-				filePath = os.path.join(hourFolder, fname)
+				filePath = os.path.join(hourFolderPath, fname)
 
 				if not os.path.isdir(filePath) and software not in ignoreSoftware:
-					startTime = time.time()
-					print colorLog("info", "Processing... %s" % filePath)
-					if not args.testing:
-						with open(filePath, "r") as fh:
-							processed = des_collectionreader.collectFileEx(collectionFolder, sf, filePath, software, device, fh)
-							if not processed:
-								print colorLog("danger", "Did not process because already collected this file before")
+					if hourFolder in hourFolders:
+						hourFolders[hourFolder].append([filePath, software, device])
+					else:
+						hourFolders[hourFolder] = [[filePath, software, device]]
 
-					elapsedSeconds = round(time.time() - startTime, 3)
-					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
+	for hourFolder in hourFolders:
+		startTime = time.time()
+		print colorLog("info", "Processing hour folder %s" % hourFolder)
+		for filePath, software, device in hourFolders[hourFolder]:
+			print colorLog("info", "Includes %s" % filePath)
+
+		if not args.testing:
+			processed = des_collectionreader.collectDiv(collectionFolder, hourFolders[hourFolder], hourFolder)
+			if not processed:
+				print colorLog("danger", "Did not process because already collected this hour before")
+
+			elapsedSeconds = round(time.time() - startTime, 3)
+			print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
 
 def _sendParsed(args, config):
 	global es
@@ -373,7 +382,7 @@ if __name__ == "__main__":
 		elif args.mode == "rank-parsed": _rankParsed(args, config)
 		elif args.mode == "send-parsed": _sendParsed(args, config)
 		elif args.mode == "collect-parsed": _collectParsed(args, config)
-		elif args.mode == "collect-parsed-ex": _collectParsedEx(args, config)
+		elif args.mode == "collect-parsed-div": _collectParsedDiv(args, config)
 		elif args.mode == "plot": _plot(args, config)
 
 		else:

@@ -28,6 +28,24 @@ OPTIONS = {
 		"parse_save": (lambda x: x),
 	},
 
+	"collection_div_location": {
+		"section": "LOCATION",
+		"format": "STRING",
+		"description": "collection_div_location description",
+		"default": "../data_collection",
+		"parse_load": (lambda x: x),
+		"parse_save": (lambda x: x),
+	},
+
+	"plot_save_location": {
+		"section": "LOCATION",
+		"format": "String",
+		"description": "plot_save_location description",
+		"default": "../plots",
+		"parse_load": (lambda x: x),
+		"parse_save": (lambda x: x),
+	},
+
 	"elasticsearch_index": {
 		"section": "LOCATION",
 		"format": "String",
@@ -111,7 +129,8 @@ OPTIONS = {
 }
 
 OPTIONS_ORDER = [
-	"data_location", "save_location", "collection_location", "elasticsearch_index", "ignore_software",
+	"data_location", "save_location", "collection_location", "plot_save_location", "collection_div_location",
+	"elasticsearch_index", "ignore_software",
 	"ignore_device", "ignore_file_name", "ignore_file_extension",
 	"min_data_file_size", "max_data_file_size", "data_file_includes_timestamp",
 	"time_chunks",
