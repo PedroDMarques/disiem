@@ -50,7 +50,7 @@ def collectDiv(collectionPath, files, hourFolder):
 	"""
 	## Check if we've already collected for this hour folder
 	if hasFileBeenCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv"):
-		return false
+		return False
 
 	## Don't waste time if there's only one software
 	uniqueSoftware = set()
