@@ -52,6 +52,15 @@ def collectDiv(collectionPath, files, hourFolder):
 	if hasFileBeenCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv"):
 		return false
 
+	## Don't waste time if there's only one software
+	uniqueSoftware = set()
+	for _, software, _ in files:
+		uniqueSoftware.add(software)
+	
+	if len(uniqueSoftware) < 2:
+		commitFileCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv")
+		return True
+
 	pairs = dict()
 	## Collect all the unique pairs for each of the files, and keep in memory their occurences
 	for filePath, software, device in files:
