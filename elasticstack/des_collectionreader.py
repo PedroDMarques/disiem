@@ -92,6 +92,8 @@ def collectDiv(collectionPath, files, hourFolder):
 			for software in softwareCombination:
 				intersection = pairsSet[software] if inter == None else inter.intersection(pairsSet[software])
 			
+			if inter == None:
+				continue
 
 			savingDir = os.path.join(collectionPath, hourFolder)
 			if not os.path.exists(savingDir):
