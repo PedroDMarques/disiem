@@ -67,7 +67,10 @@ def collectDiv(collectionPath, files, hourFolder):
 					protocol = lineProps.get("protocol")
 					timestamp = lineProps.get("timestamp")
 					toApp = [device, protocol, timestamp]
-					pairs[software][pair] = pairs[software].get(pair, []).append(toApp)
+					if pair in pairs[software]:
+						pairs[software][pair].append(toApp)
+					else:
+						pairs[software][pair] = [toApp]
 
 	pairsSet = dict()
 	for k in pairs:
