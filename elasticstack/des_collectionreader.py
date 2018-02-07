@@ -98,7 +98,7 @@ def collectDiv(collectionPath, files, hourFolder):
 				os.makedirs(savingDir)
 
 			saveFileName = softwareCombination[0]
-			for sof in range(1, len(softwareCombination)+1):
+			for sof in range(1, len(softwareCombination)):
 				saveFileName = saveFileName + ("-%s" % softwareCombination[sof])
 			
 			savePath = os.path.join(collectionPath, hourFolder, saveFileName)
