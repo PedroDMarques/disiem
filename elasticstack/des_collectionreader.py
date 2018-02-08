@@ -120,7 +120,10 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 
 			lenSavePath = os.path.join(collectionPath, hourFolder, "meta-srcdstlen")
 			with open(lenSavePath, "a") as fh:
-				fh.write("%s=%d" % (softwareCombination, len(inter)))
+				toWrite = softwareCombination[0]
+				for sof in range(1, len(softwareCombination)):
+					toWrite += ",%s" % sof
+				fh.write("%s=%d\n" % (toWrite, len(inter)))
 	
 	commitFileCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv")			
 	return True
