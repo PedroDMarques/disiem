@@ -122,7 +122,7 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 			with open(lenSavePath, "a") as fh:
 				toWrite = softwareCombination[0]
 				for sof in range(1, len(softwareCombination)):
-					toWrite += ",%s" % sof
+					toWrite += ",%s" % softwareCombination[sof]
 				fh.write("%s=%d\n" % (toWrite, len(inter)))
 	
 	commitFileCollected(collectionPath, hourFolder, metaName="meta_filesCollectedDiv")			
