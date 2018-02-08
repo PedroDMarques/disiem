@@ -45,7 +45,7 @@ def hasFileBeenCollected(metaPath, fileDesc, metaName="meta_filesCollected"):
 
 	return False
 
-def collectDiv(collectionPath, files, hourFolders):
+def collectDiv(collectionPath, files, hourFolder):
 	"""
 	files should be a list like [filePath, software, device]
 	"""
