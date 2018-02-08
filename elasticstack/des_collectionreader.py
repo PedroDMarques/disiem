@@ -89,7 +89,10 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 		print "pairsSet", pairsSet
 		print "pairs:"
 		for k in pairs:
-			print k, len(k)
+			print k, len(pairs[k])
+			for j in pairs[k]:
+				print j, pairs[k][j]
+				break
 
 	## For each combination of the softwares find the matching pairs
 	for i in range(2, len(pairs)+1):
