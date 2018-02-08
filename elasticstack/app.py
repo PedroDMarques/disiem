@@ -187,7 +187,7 @@ def _collectParsedDiv(args, config):
 			print colorLog("info", "Includes %s" % filePath)
 
 		if not args.testing:
-			processed = des_collectionreader.collectDiv(collectionFolder, hourFolders[hourFolder], hourFolder)
+			processed = des_collectionreader.collectDiv(collectionFolder, hourFolders[hourFolder], hourFolder, testing=True)
 			if not processed:
 				print colorLog("danger", "Did not process because already collected this hour before")
 
