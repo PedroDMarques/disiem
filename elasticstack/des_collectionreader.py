@@ -86,7 +86,11 @@ def collectDiv(collectionPath, files, hourFolder):
 	for k in pairs:
 		pairsSet[k] = set(pairs[k].keys())
 
-	lenSavePath = os.path.join(collectionPath, hourFolder, "meta-srcdstlen")
+	savingDirLen = os.path.join(collectionPath, hourFolder)
+	if not os.path.exists(savingDirLen):
+		os.makedirs(savingDirLen)
+
+	lenSavePath = os.path.join(savingDirLen, "meta-srcdstlen")
 	with open(lenSavePath, "a") as fh:
 		for sof in pairsSet:
 			fh.write("%s=%d" % (sof, len(pairsSet[sof])))
