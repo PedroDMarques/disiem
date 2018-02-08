@@ -45,7 +45,7 @@ def hasFileBeenCollected(metaPath, fileDesc, metaName="meta_filesCollected"):
 
 	return False
 
-def collectDiv(collectionPath, files, hourFolder, testing=False):
+def collectDiv(collectionPath, files, hourFolders):
 	"""
 	files should be a list like [filePath, software, device]
 	"""
@@ -86,11 +86,14 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 	for k in pairs:
 		pairsSet[k] = set(pairs[k].keys())
 
+	lenSavePath = os.path.join(collectionPath, hourFolder, "meta-srcdstlen")
+	with open(lenSavePath, "a") as fh:
+		for sof in pairsSet:
+			fh.write("%s=%d" % (sof, len(pairsSet[sof])))
+
 	## For each combination of the softwares find the matching pairs
 	for i in range(2, len(pairs)+1):
 		for softwareCombination in itertools.combinations(sorted(pairs), i):
-			if testing:
-				print softwareCombination
 			inter = None
 			for software in softwareCombination:
 				inter = pairsSet[software] if inter == None else inter.intersection(pairsSet[software])
