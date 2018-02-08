@@ -93,7 +93,7 @@ def collectDiv(collectionPath, files, hourFolder):
 	lenSavePath = os.path.join(savingDirLen, "meta-srcdstlen")
 	with open(lenSavePath, "a") as fh:
 		for sof in pairsSet:
-			fh.write("%s=%d" % (sof, len(pairsSet[sof])))
+			fh.write("%s=%d\n" % (sof, len(pairsSet[sof])))
 
 	## For each combination of the softwares find the matching pairs
 	for i in range(2, len(pairs)+1):
