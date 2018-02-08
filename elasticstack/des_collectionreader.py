@@ -90,9 +90,6 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 		print "pairs:"
 		for k in pairs:
 			print k, len(pairs[k])
-			for j in pairs[k]:
-				print j, pairs[k][j]
-				break
 
 	## For each combination of the softwares find the matching pairs
 	for i in range(2, len(pairs)+1):
@@ -101,10 +98,10 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 				print softwareCombination
 			inter = None
 			for software in softwareCombination:
-				intersection = pairsSet[software] if inter == None else inter.intersection(pairsSet[software])
+				inter = pairsSet[software] if inter == None else inter.intersection(pairsSet[software])
 				if testing:
-					print "intersection", len(intersection)
-			
+					print "inter", len(inter)
+
 			if inter == None:
 				continue
 
