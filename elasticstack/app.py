@@ -172,6 +172,7 @@ def _collectParsedDiv(args, config):
 			
 			for fname in os.listdir(hourFolderPath):
 				software, device = fname.split("-")
+				device = device.split(".txt")[0]
 				filePath = os.path.join(hourFolderPath, fname)
 
 				if not os.path.isdir(filePath) and software not in ignoreSoftware:
@@ -187,7 +188,7 @@ def _collectParsedDiv(args, config):
 			print colorLog("info", "Includes %s" % filePath)
 
 		if not args.testing:
-			processed = des_collectionreader.collectDiv(collectionFolder, hourFolders[hourFolder], hourFolder, testing=True)
+			processed = des_collectionreader.collectDiv(collectionFolder, hourFolders[hourFolder], hourFolder)
 			if not processed:
 				print colorLog("danger", "Did not process because already collected this hour before")
 

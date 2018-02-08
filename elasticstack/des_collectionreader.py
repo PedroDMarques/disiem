@@ -1,6 +1,7 @@
 import os
 import json
 import itertools
+from des_printutil import *
 
 class CollectionReader(object):
 	def __init__(self, filePath):
@@ -85,12 +86,6 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 	for k in pairs:
 		pairsSet[k] = set(pairs[k].keys())
 
-	if testing:
-		print "pairsSet", pairsSet
-		print "pairs:"
-		for k in pairs:
-			print k, len(pairs[k])
-
 	## For each combination of the softwares find the matching pairs
 	for i in range(2, len(pairs)+1):
 		for softwareCombination in itertools.combinations(sorted(pairs), i):
@@ -99,11 +94,11 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 			inter = None
 			for software in softwareCombination:
 				inter = pairsSet[software] if inter == None else inter.intersection(pairsSet[software])
-				if testing:
-					print "inter", len(inter)
 
 			if inter == None:
 				continue
+
+			print colorLog("info", "Found %d matching src-dst pairs for %s" % (len(inter), softwareCombination))
 
 			savingDir = os.path.join(collectionPath, hourFolder)
 			if not os.path.exists(savingDir):
@@ -118,7 +113,7 @@ def collectDiv(collectionPath, files, hourFolder, testing=False):
 				for srcDstPair in inter:
 					for software in softwareCombination:
 						for instance in pairs[software][srcDstPair]:
-							toWrite = srcDstPair
+							toWrite = "%s,%s" % (srcDstPair, software)
 							for d in instance:
 								toWrite += ",%s" % d
 							fh.write("%s\n" % toWrite)
