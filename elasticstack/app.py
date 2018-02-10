@@ -142,7 +142,7 @@ def _collectParsed(args, config):
 				return
 
 			for fname in os.listdir(hourFolder):
-				software, device = fname.split("-")
+				software, device = fname.split(".txt")[0].split("-")
 				filePath = os.path.join(hourFolder, fname)
 
 				if not os.path.isdir(filePath) and software not in ignoreSoftware:
