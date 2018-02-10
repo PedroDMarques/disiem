@@ -238,11 +238,14 @@ def collectFile(collectionPath, hourPath, filePath, software, device, fh):
 			else:
 				eventType["desUnknown"] = eventType.get("desUnknown", 0) + 1
 
-			iHTTPStatus = lineProps.get("http.status")
-			if type(iHTTPStatus) is str or type(iHTTPStatus) is unicode:
-				httpStatus[iHTTPStatus] = httpStatus.get(iHTTPStatus, 0) + 1
+			if "http" in lineProps:
+				iHTTPStatus = lineProps.get("http.status")
+				if type(iHTTPStatus) is str or type(iHTTPStatus) is unicode:
+					httpStatus[iHTTPStatus] = httpStatus.get(iHTTPStatus, 0) + 1
+				else:
+					httpStatus["desUnknown"] = httpStatus.get("desUnknown", 0) + 1
 			else:
-				httpStatus["desUnknown"] = httpStatus.get("desUnknown", 0) + 1
+				httpStatus["na"] = httpStatus.get("na", 0) + 1
 
 	savingDir = os.path.join(collectionPath, hourPath)
 	if not os.path.exists(savingDir):
