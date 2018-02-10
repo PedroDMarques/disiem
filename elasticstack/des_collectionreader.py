@@ -242,9 +242,10 @@ def collectFile(collectionPath, hourPath, filePath, software, device, fh):
 				iHTTPStatus = lineProps.get("http", {}).get("status")
 				if type(iHTTPStatus) is str or type(iHTTPStatus) is unicode or type(iHTTPStatus) is int or type(iHTTPStatus) is float:
 					try:
-						iHTTPStatus = str(iHTTPStatus)
+						iHTTPStatus = str(int(iHTTPStatus))
 					except:
-						pass
+						iHTTPStatus = str(iHTTPStatus)
+						
 					httpStatus[iHTTPStatus] = httpStatus.get(iHTTPStatus, 0) + 1
 				else:
 					httpStatus["desUnknown"] = httpStatus.get("desUnknown", 0) + 1
