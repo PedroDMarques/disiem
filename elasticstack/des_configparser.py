@@ -32,7 +32,7 @@ OPTIONS = {
 		"section": "LOCATION",
 		"format": "STRING",
 		"description": "collection_div_location description",
-		"default": "../data_collection",
+		"default": "../data_collection_div",
 		"parse_load": (lambda x: x),
 		"parse_save": (lambda x: x),
 	},

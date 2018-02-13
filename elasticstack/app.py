@@ -6,6 +6,7 @@ import des_configparser
 import des_filesearcher
 import des_dataparser
 import des_collectionreader
+import des_divworker
 
 try:
 	import des_plotter
@@ -112,6 +113,7 @@ def _parseSend(files, filtered, args, config):
 
 def _plot(args, config):
 	collectionFolder = config.getOption("collection_location")
+	collectionDivFolder = config.getOption("collection_div_location")
 
 	if not args.plot:
 		print colorLog("danger", "-p or --plot is required for plot")
@@ -120,9 +122,9 @@ def _plot(args, config):
 	if args.plot == "all":
 		for x in args.plotChoices:
 			if x != "all":
-				des_plotter.plot(collectionFolder, x, args.save_plot, config.getOption("plot_save_location"))
+				des_plotter.plot(collectionFolder, collectionDivFolder, x, args.save_plot, config.getOption("plot_save_location"))
 	else:
-		des_plotter.plot(collectionFolder, args.plot, args.save_plot, config.getOption("plot_save_location"))
+		des_plotter.plot(collectionFolder, collectionDivFolder, args.plot, args.save_plot, config.getOption("plot_save_location"))
 
 def _collectParsed(args, config):
 	ignoreSoftware = config.getOption("ignore_software")
@@ -156,6 +158,21 @@ def _collectParsed(args, config):
 
 					elapsedSeconds = round(time.time() - startTime, 3)
 					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
+
+def _compareCollectedDiv(args, config):
+	collectionFolder = config.getOption("collection_div_location")
+	for hourFolder in os.listdir(collectionFolder):
+		hourPath = os.path.join(collectionFolder, hourFolder)
+		if not os.path.isdir(hourPath):
+			continue
+
+		startTime = time.time()
+		print colorLog("info", "Processing hour folder %s" % hourFolder)
+		if not des_divworker.compareDiv(collectionFolder, hourPath):
+			print colorLog("danger", "Did not process because already processed this hour before")
+		
+		elapsedSeconds = round(time.time() - startTime, 3)
+		print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
 
 def _collectParsedDiv(args, config):
 	ignoreSoftware = config.getOption("ignore_software")
@@ -384,6 +401,7 @@ if __name__ == "__main__":
 		elif args.mode == "send-parsed": _sendParsed(args, config)
 		elif args.mode == "collect-parsed": _collectParsed(args, config)
 		elif args.mode == "collect-parsed-div": _collectParsedDiv(args, config)
+		elif args.mode == "compare-collected-div": _compareCollectedDiv(args, config)
 		elif args.mode == "plot": _plot(args, config)
 
 		else:

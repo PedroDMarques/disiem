@@ -1,11 +1,87 @@
 import os
 from des_collectionreader import CollectionReader
 
+import dateutil.parser
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import seaborn as sns
 sns.set()
+
+COLORS = {
+	"div-lines": {
+		"ciscoasa": "#3366CC",
+		"pan": "#DC3912",
+		"suricata": "#FF9900",
+		"ciscoasa,pan": "#109618",
+		"ciscoasa,suricata": "#990099",
+		"pan,suricata": "#3B3EAC",
+		"ciscoasa,pan,suricata": "#0099C6",
+	},
+	"softwares": {
+		"suricata": "#3366CC",
+		"ciscoasa": "#DC3912",
+		"pan": "#FF9900",
+		"ciscovpn": "#109618",
+		"bro": "#990099",
+		"mcafee": "#3B3EAC",
+	},
+	"protocols": {
+		"tcp": "#3366CC",
+		"udp": "#DC3912",
+		"desUnknown": "#FF9900",
+		"47": "#109618",
+		"gre": "#990099",
+		"icmp": "#3B3EAC",
+		"ipsec": "#0099C6",
+		"63": "#DD4477",
+		"egp": "#66AA00",
+		"hopopt": "#B82E2E",
+		"etherip": "#316395",
+		"ipv6": "#994499",
+	},
+	"pan-devices": {
+		"mucfwo301a": "#3366CC",
+		"mucfwp308a": "#DC3912",
+		"mucfwp3100a": "#FF9900",
+		"mucfwp311a": "#109618",
+		"sydfwo300a": "#990099",
+		"frafwp300a": "#3B3EAC",
+		"miafwo300a": "#0099C6",
+		"atlfwo300a": "#DD4477",
+		"10.68.15.53": "#66AA00",
+		"sinfwo302a": "#B82E2E",
+		"mucfwp608a": "#316395",
+		"madfwo301a": "#994499",
+		"dfwfwo300a": "#22AA99",
+		"mucfwp322a": "#AAAA11",
+		"172.22.137.53": "#6633CC",
+		"selfwo300": "#E67300",
+		"ncefwt1": "#8B0707",
+		"172.16.1.63": "#329262",
+		"mucfwp373a": "#5574A6",
+		"bosfwo300a": "#3B3EAC",
+		"10.68.15.54": "#3366CC",
+		"blrfwo300a": "#DC3912",
+		"mucfwp393a": "#FF9900",
+	},
+	"ciscoasa-devices": {
+		"mnpfwp41": "#3366CC",
+		"mucfwp112": "#DC3912",
+		"mucfwp110": "#FF9900",
+		"blrfwo01": "#109618",
+		"KULFWO01": "#990099",
+		"hkgfwo04": "#3B3EAC",
+		"atlfwp03": "#0099C6",
+		"SYDFWO01": "#DD4477",
+		"HKGFWO01": "#66AA00",
+	},
+	"suricata-devices": {
+		"nce": "#3366CC",
+		"ncesecids05": "#DC3912",
+		"ncesecids06": "#FF9900",
+	},
+}
 
 def getCollectionFiles(collectionLocation):
 	f = []
@@ -17,6 +93,24 @@ def getCollectionFiles(collectionLocation):
 			fullPath = os.path.join(collectionLocation, hourFolder, fname)
 			software, device = fname.split(".txt")[0].split("-")
 			f.append((hourFolder, software, device, CollectionReader(fullPath).getProps()))
+
+	return f
+
+def getCollectionDivMeta(collectionLocation):
+	f = []
+	for hourFolder in os.listdir(collectionLocation):
+		if not os.path.isdir(os.path.join(collectionLocation, hourFolder)):
+			continue
+		
+		metaFileName = os.path.join(collectionLocation, hourFolder, "meta-srcdstlen")
+		if os.path.exists(metaFileName):
+			d = dict()
+			with open(metaFileName, "r") as fh:
+				for line in fh:
+					key, value = line.split("\n")[0].split("=")
+					d[key] = int(value)
+
+			f.append([hourFolder, d])
 
 	return f
 
@@ -274,30 +368,528 @@ def plotOverlap(collectionLocation, plot, save=False, saveLocation=""):
 
 	plotHeatmapOverlap(intensity, [x.split("_")[1] for x in uniqueKeys], [x for x in deviceProps], title, save=save, saveLocation=saveLocation)
 
-def plot(collectionLocation, plot, save=False, saveLocation=""):
+def plot(collectionLocation, collectionDivLocation, plot, save=False, saveLocation=""):
 
-	if plot == "software-alerts": plotDataOverTime(collectionLocation, plot, save, saveLocation)
+	if plot == "software-alerts": softwareAlerts(collectionLocation)
+	elif plot == "software-alerts-small": softwareAlertsSmall(collectionLocation)
 	elif plot == "device-alerts": plotDataOverTime(collectionLocation, plot, save, saveLocation)
-	elif plot == "suricata-alerts": plotDataOverTime(collectionLocation, plot, save, saveLocation)
-	elif plot == "ciscoasa-alerts": plotDataOverTime(collectionLocation, plot, save, saveLocation)
-	elif plot == "pan-alerts": plotDataOverTime(collectionLocation, plot, save, saveLocation)
-	elif plot == "suricata-protocol": plotDataOverTime(collectionLocation, plot, save, saveLocation)
-	elif plot == "ciscoasa-protocol": plotDataOverTime(collectionLocation, plot, save, saveLocation)
-	elif plot == "pan-protocol": plotDataOverTime(collectionLocation, plot, save, saveLocation)
+	elif plot == "suricata-alerts": suricataAlerts(collectionLocation)
+	elif plot == "ciscoasa-alerts": ciscoasaAlerts(collectionLocation)
+	elif plot == "pan-alerts": panAlerts(collectionLocation)
+	elif plot == "suricata-protocol": suricataProtocol(collectionLocation)
+	elif plot == "ciscoasa-protocol": ciscoasaProtocol(collectionLocation)
+	elif plot == "pan-protocol": panProtocol(collectionLocation)
 
-	elif plot == "pan-destinationZone": plotOverlap(collectionLocation, plot, save, saveLocation)
-	elif plot == "pan-sourceZone": plotOverlap(collectionLocation, plot, save, saveLocation)
-	elif plot == "pan-application": plotOverlap(collectionLocation, plot, save, saveLocation)
-	elif plot == "pan-cat": plotOverlap(collectionLocation, plot, save, saveLocation)
-	elif plot == "pan-sessionEndReason": plotOverlap(collectionLocation, plot, save, saveLocation)
+	elif plot == "pan-destinationZone": panDestinationZone(collectionLocation)
+	elif plot == "pan-sourceZone": panSourceZone(collectionLocation)
+	elif plot == "pan-application": panApplication(collectionLocation)
+	elif plot == "pan-cat": panCat(collectionLocation)
+	elif plot == "pan-sessionEndReason": panSessionEndReason(collectionLocation)
 
-	elif plot == "suricata-eventType": plotOverlap(collectionLocation, plot, save, saveLocation)
-	elif plot == "suricata-httpStatus": plotOverlap(collectionLocation, plot, save, saveLocation)
+	elif plot == "suricata-eventType": suricataEventTypes(collectionLocation)
+	elif plot == "suricata-httpStatus": suricataHttpStatus(collectionLocation)
 
 	elif plot == "pie-software-alerts": plotDataPie(collectionLocation, plot, save, saveLocation)
 	elif plot == "pie-suricata-alerts": plotDataPie(collectionLocation, plot, save, saveLocation)
 	elif plot == "pie-ciscoasa-alerts": plotDataPie(collectionLocation, plot, save, saveLocation)
 	elif plot == "pie-pan-alerts": plotDataPie(collectionLocation, plot, save, saveLocation)
+
+	elif plot == "totals-alerts": totalsAlerts(collectionLocation)
+	elif plot == "totals-div-matches": totalsDivMatches(collectionDivLocation)
+	elif plot == "timelocks": timelocks(collectionLocation)
+
+	elif plot == "div-overtime": divOvertime(collectionDivLocation)
+
+def totalsDivMatches(collectionLocation):
+	data = dict()
+	for _, props in getCollectionDivMeta(collectionLocation):
+		for prop in props:
+			data[prop] = data.get(prop, 0) + props[prop]
+
+	for prop in data:
+		print prop, "=", data[prop]
+
+def divOvertime(collectionDivLocation):
+	data = dict()
+	uniqueProps = set()
+
+	for timestamp, props in getCollectionDivMeta(collectionDivLocation):
+		t = dateutil.parser.parse(timestamp)
+		if t not in data: data[t] = dict()
+		for prop in props:
+			uniqueProps.add(prop)
+			data[t][prop] = props[prop]
+
+	timestamps = sorted(data.keys())
+	for prop in uniqueProps:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(prop, 0))
+		
+		plt.plot_date(timestamps, line,
+			label=prop,
+			xdate=True,
+			linestyle="solid",
+			marker=".",
+			color=COLORS["div-lines"][prop]
+		)
+
+	ax = plt.gca()
+	ax.set_yscale("symlog")
+
+	plt.title("Unique src/dst ip:port pairs over time")
+	plt.legend()
+	plt.show()
+	plt.close()
+
+def totalsAlerts(collectionLocation):
+	softwares = dict()
+	devices = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software not in devices: devices[software] = dict()
+		softwares[software] = softwares.get(software, 0) + int(props.get("alerts", 0))
+		devices[software][device] = devices[software].get(device, 0) + int(props.get("alerts", 0))
+
+	for software in softwares:
+		print "%s,%s" % (software, softwares[software])
+	
+	for software in devices:
+		print "%s:" % software
+		for device in devices[software]:
+			print "%s,%s" % (device, devices[software][device])
+
+def timelocks(collectionLocation):
+	timestamps = set()
+	data = dict()
+
+	i = 1
+	for timestamp, software, device, _ in getCollectionFiles(collectionLocation):
+		t = dateutil.parser.parse(timestamp)
+		timestamps.add(t)
+		if software not in data: data[software] = dict()
+		if device not in data[software]:
+			data[software][device] = {"min": t, "max": t, "id": ("%s-%s" % (software, device))}
+			i += 1
+		else:
+			if t < data[software][device]["min"]: data[software][device]["min"] = t
+			if t > data[software][device]["max"]: data[software][device]["max"] = t
+
+	for software in data:
+		for device in data[software]:
+			plt.plot_date(
+				[data[software][device]["min"], data[software][device]["max"]],
+				[data[software][device]["id"], data[software][device]["id"]],
+				xdate=True,
+				label=("%s-%s" % (software, device)),
+				linestyle="solid",
+				marker=".",
+				color=COLORS["softwares"][software]
+			)
+
+	plt.title("Data start time and end time for each device")
+	plt.show()
+	plt.close()
+				
+
+def ciscoasaAlerts(collectionLocation):
+	uniqueDevices = set()
+	data = dict()
+	
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "ciscoasa":
+			continue
+
+		uniqueDevices.add(device)
+
+		t = dateutil.parser.parse(timestamp)
+		data[t] = data.get(t, dict())
+		data[t][device] = data[t].get(device, 0) + int(props.get("alerts"))
+	
+	timestamps = sorted(data.keys())
+
+	for device in uniqueDevices:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(device, 0))
+
+		plt.plot_date(timestamps, line, 
+			label=device,
+			xdate=True, 
+			linestyle="solid",
+			marker=".",
+			color=COLORS["ciscoasa-devices"][device]
+		)
+
+	lastData = []
+	for device in uniqueDevices:
+		toApp = [device, data[timestamps[-1]].get(device, 0)]
+		lastData.append(toApp)
+
+	ax = plt.gca()
+	i = 0
+	for point in sorted(lastData, key=lambda x: x[1], reverse=True):
+		i += 1
+		ax.annotate(point[0], 
+			xy=(timestamps[-1], point[1]),
+			textcoords="figure fraction",
+			xytext=(0.90, 0.85-(0.03*i)),
+			arrowprops={"arrowstyle":"->"},
+			color=COLORS["ciscoasa-devices"][point[0]]
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+	ax.set_yscale("symlog",
+		linthreshy=999,
+		linscaley=2,
+	)
+
+	plt.title("Ciscoasa device alert counts over time")
+	#plt.legend()
+	plt.show()
+	plt.close()
+
+def suricataProtocol(collectionLocation):
+	uniqueProtocols = set()
+	data = dict()
+
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "suricata":
+			continue
+		
+		for prop in props:
+			if prop.split("_")[0] == "protocol":
+				protocol = prop.split("_")[1]
+				uniqueProtocols.add(protocol)
+				t = dateutil.parser.parse(timestamp)
+				data[t] = data.get(t, dict())
+				data[t][protocol] = data[t].get(protocol, 0) + int(props[prop])
+
+	timestamps = sorted(data.keys())
+
+	for protocol in uniqueProtocols:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(protocol, 0))
+
+		plt.plot_date(timestamps, line,
+			label=protocol,
+			xdate=True,
+			linestyle="solid",
+			marker=".",
+			color=COLORS["protocols"][protocol]
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+	
+
+	plt.title("Suricata alert counts over time by protocol")
+	plt.legend()
+	plt.show()
+	plt.close()
+
+def ciscoasaProtocol(collectionLocation):
+	uniqueProtocols = set()
+	data = dict()
+
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "ciscoasa":
+			continue
+		
+		for prop in props:
+			if prop.split("_")[0] == "protocol":
+				protocol = prop.split("_")[1]
+				uniqueProtocols.add(protocol)
+				t = dateutil.parser.parse(timestamp)
+				data[t] = data.get(t, dict())
+				data[t][protocol] = data[t].get(protocol, 0) + int(props[prop])
+
+	timestamps = sorted(data.keys())
+
+	for protocol in uniqueProtocols:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(protocol, 0))
+
+		plt.plot_date(timestamps, line,
+			label=protocol,
+			xdate=True,
+			linestyle="solid",
+			marker=".",
+			color=COLORS["protocols"][protocol]
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+	ax.set_yscale("symlog")
+	
+
+	plt.title("Ciscoasa alert counts over time by protocol")
+	plt.legend()
+	plt.show()
+	plt.close()
+
+def panProtocol(collectionLocation):
+	uniqueProtocols = set()
+	data = dict()
+
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+		
+		for prop in props:
+			if prop.split("_")[0] == "protocol":
+				protocol = prop.split("_")[1]
+				uniqueProtocols.add(protocol)
+				t = dateutil.parser.parse(timestamp)
+				data[t] = data.get(t, dict())
+				data[t][protocol] = data[t].get(protocol, 0) + int(props[prop])
+
+	timestamps = sorted(data.keys())
+
+	for protocol in uniqueProtocols:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(protocol, 0))
+
+		plt.plot_date(timestamps, line,
+			label=protocol,
+			xdate=True,
+			linestyle="solid",
+			marker=".",
+			color=COLORS["protocols"][protocol]
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+	ax.set_yscale("symlog")
+	
+
+	plt.title("Pan alert counts over time by protocol")
+	plt.legend(loc=9, ncol=10)
+	plt.show()
+	plt.close()
+
+def suricataAlerts(collectionLocation):
+	uniqueDevices = set()
+	data = dict()
+	
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "suricata":
+			continue
+
+		uniqueDevices.add(device)
+
+		t = dateutil.parser.parse(timestamp)
+		data[t] = data.get(t, dict())
+		data[t][device] = data[t].get(device, 0) + int(props.get("alerts"))
+	
+	timestamps = sorted(data.keys())
+
+	for device in uniqueDevices:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(device, 0))
+
+		plt.plot_date(timestamps, line, 
+			label=device,
+			xdate=True, 
+			linestyle="solid",
+			marker=".",
+			color=COLORS["suricata-devices"][device]
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+	ax.set_yscale("symlog", linthreshy=10000)
+	
+
+	plt.title("Suricata device alert counts over time")
+	plt.legend()
+	plt.show()
+	plt.close()
+
+def panAlerts(collectionLocation):
+	uniqueDevices = set()
+	data = dict()
+	
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+
+		uniqueDevices.add(device)
+
+		t = dateutil.parser.parse(timestamp)
+		data[t] = data.get(t, dict())
+		data[t][device] = data[t].get(device, 0) + int(props.get("alerts"))
+	
+	timestamps = sorted(data.keys())
+
+	for device in uniqueDevices:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(device, 0))
+
+		plt.plot_date(timestamps, line, 
+			label=device,
+			xdate=True, 
+			linestyle="solid",
+			marker=".",
+			color=COLORS["pan-devices"][device]
+		)
+
+	lastData = []
+	for device in uniqueDevices:
+		toApp = [device, data[timestamps[-1]].get(device, 0)]
+		lastData.append(toApp)
+
+	ax = plt.gca()
+	i = 0
+	for point in sorted(lastData, key=lambda x: x[1], reverse=True):
+		i += 1
+		ax.annotate(point[0], 
+			xy=(timestamps[-1], point[1]),
+			textcoords="figure fraction",
+			xytext=(0.90, 0.85-(0.03*i)),
+			arrowprops={"arrowstyle":"->"},
+			color=COLORS["pan-devices"][point[0]]
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+	ax.set_yscale("symlog",
+		linthreshy=999,
+		linscaley=2,
+	)
+
+	plt.title("Pan device alert counts over time")
+	#plt.legend()
+	plt.show()
+	plt.close()
+
+def softwareAlerts(collectionLocation):
+	uniqueSoftwares = set()
+	data = dict()
+	
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software not in ["suricata", "ciscoasa", "pan"]:
+			continue
+
+		uniqueSoftwares.add(software)
+
+		t = dateutil.parser.parse(timestamp)
+		data[t] = data.get(t, dict())
+		data[t][software] = data[t].get(software, 0) + int(props.get("alerts"))
+	
+	timestamps = sorted(data.keys())
+
+	for software in uniqueSoftwares:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(software, 0))
+
+		plt.plot_date(timestamps, line, 
+			label=software, 
+			xdate=True, 
+			linestyle="solid", 
+			color=COLORS["softwares"][software],
+			marker=".",
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+
+	plt.title("Software alert counts over time")
+	plt.legend()
+	plt.show()
+	plt.close()
+
+def softwareAlertsSmall(collectionLocation):
+	uniqueSoftwares = set()
+	data = dict()
+	
+	for timestamp, software, device, props in getCollectionFiles(collectionLocation):
+		if software not in ["bro", "ciscovpn", "mcafee"]:
+			continue
+
+		uniqueSoftwares.add(software)
+
+		t = dateutil.parser.parse(timestamp)
+		data[t] = data.get(t, dict())
+		data[t][software] = data[t].get(software, 0) + int(props.get("alerts"))
+	
+	timestamps = sorted(data.keys())
+
+	for software in uniqueSoftwares:
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(software, 0))
+
+		plt.plot_date(timestamps, line, 
+			label=software, 
+			xdate=True, 
+			linestyle="solid", 
+			color=COLORS["softwares"][software],
+			marker=".",
+		)
+
+	## X axis
+	plt.xlabel("Timestamps")
+
+	## Y axis
+	ax = plt.gca()
+	formatter = ticker.StrMethodFormatter('{x:,.0f}')
+	ax.yaxis.set_major_formatter(formatter)
+	plt.ylabel("Alert counts")
+
+	plt.title("Software alert counts over time")
+	plt.legend()
+	plt.show()
+	plt.close()
 
 def plotOverTime(timestamps, lines, ylabel, title, save=False, saveLocation=""):
 	for label in lines:
@@ -348,4 +940,265 @@ def plotHeatmapOverlap(values, xticks, yticks, title, mask=None, save=False, sav
 		plt.savefig(os.path.join(saveLocation, title))
 	else:
 		plt.show()
+	plt.close()
+
+def panCat(collectionLocation):
+	uniqueDevices = set()
+	uniqueCat = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_", 1)[0] == "cat":
+				k1, k2 = prop.split("_", 1)
+				uniqueCat.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for cat in sorted(uniqueCat):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(cat, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values,
+		yticklabels=sorted(uniqueCat),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+	)
+	
+	plt.title("Pan devices overlap in cat")
+	plt.show()
+	plt.close()
+
+def panSessionEndReason(collectionLocation):
+	uniqueDevices = set()
+	uniqueReasons = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_", 1)[0] == "sessionEndReason":
+				k1, k2 = prop.split("_", 1)
+				uniqueReasons.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for reason in sorted(uniqueReasons):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(reason, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values,
+		yticklabels=sorted(uniqueReasons),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+	)
+	
+	plt.title("Pan devices overlap in SessionEndReason")
+	plt.show()
+	plt.close()
+
+def panApplication(collectionLocation):
+	uniqueDevices = set()
+	uniqueApplications = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_", 1)[0] == "application":
+				k1, k2 = prop.split("_", 1)
+				uniqueApplications.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for application in sorted(uniqueApplications):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(application, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values,
+		yticklabels=sorted(uniqueApplications),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+	)
+	
+	plt.title("Pan devices overlap in Application")
+	plt.show()
+	plt.close()
+
+def panDestinationZone(collectionLocation):
+	uniqueDevices = set()
+	uniqueZones = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_", 1)[0] == "destinationZone":
+				k1, k2 = prop.split("_", 1)
+				uniqueZones.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for zone in sorted(uniqueZones):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(zone, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values,
+		yticklabels=sorted(uniqueZones),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+	)
+	
+	plt.title("Pan devices overlap in DestinationZone")
+	plt.show()
+	plt.close()
+
+def panSourceZone(collectionLocation):
+	uniqueDevices = set()
+	uniqueZones = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "pan":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_", 1)[0] == "sourceZone":
+				k1, k2 = prop.split("_", 1)
+				uniqueZones.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for zone in sorted(uniqueZones):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(zone, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values,
+		yticklabels=sorted(uniqueZones),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+	)
+	
+	plt.title("Pan devices overlap in SourceZone")
+	plt.show()
+	plt.close()
+
+def suricataEventTypes(collectionLocation):
+	uniqueDevices = set()
+	uniqueEventTypes = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "suricata":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_")[0] == "eventType":
+				k1, k2 = prop.split("_")
+				uniqueEventTypes.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for eventType in sorted(uniqueEventTypes):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(eventType, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values, 
+		yticklabels=sorted(uniqueEventTypes),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+	)
+
+	plt.title("Suricata devices overlap in event type")
+	plt.show()
+	plt.close()
+
+def suricataHttpStatus(collectionLocation):
+	uniqueDevices = set()
+	uniqueStatus = set()
+	data = dict()
+
+	for _, software, device, props in getCollectionFiles(collectionLocation):
+		if software != "suricata":
+			continue
+		
+		uniqueDevices.add(device)
+		if device not in data: data[device] = dict()
+		for prop in props:
+			if prop.split("_")[0] == "httpStatus":
+				k1, k2 = prop.split("_")
+				uniqueStatus.add(k2)
+				data[device][k2] = data[device].get(k2, 0) + int(props[prop])
+
+	values = []
+	for status in sorted(uniqueStatus):
+		toApp = []
+		for device in sorted(uniqueDevices):
+			value = data[device].get(status, float("nan"))
+			toApp.append(value)
+
+		values.append(toApp)
+
+	sns.heatmap(values, 
+		yticklabels=sorted(uniqueStatus),
+		xticklabels=sorted(uniqueDevices),
+		cmap="Reds",
+		robust=True,
+		annot=True,
+		linewidths=.5
+	)
+
+	plt.title("Suricata devices overlap in http status")
+	plt.show()
 	plt.close()
