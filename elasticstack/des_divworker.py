@@ -40,6 +40,61 @@ def getDivFiles(hourPath):
 
 			yield (softwares, data)
 
+def countFirst(collectionLocation, hourPath):
+	if hasFileBeenCollected(collectionLocation, hourPath, metaName="meta_firstCounted"):
+		return False
+
+	counts = dict()
+	for softwares, data in getDivFiles(hourPath):
+		if len(data) < 1:
+			continue
+
+		softwares = tuple(softwares)
+		
+		counts[softwares] = {software: 0 for software in softwares}
+		counts[softwares]["tied"] = 0
+		for pair in data:
+			timestamps = []
+			for software in softwares:
+				for timestamp in data[pair][software]:
+					if type(timestamp) is not datetime.datetime:
+						timestamp = dateutil.parser.parse(timestamp)
+
+					timestamps.append([timestamp, software])
+
+			sortedTimestamps = sorted(timestamps)
+			if (sortedTimestamps) > 0:
+				tied = False
+				minTimestamp = sortedTimestamps[0][0]
+				minSoftware = sortedTimestamps[0][1]
+				for i in range(1, len(sortedTimestamps)):
+					if sortedTimestamps[i][1] == minSoftware:
+						continue
+					else:
+						if sortedTimestamps[i][0] == minTimestamp:
+							tied = True
+							break
+
+				if tied:
+					counts[softwares]["tied"] += 1
+				else:
+					counts[softwares][minSoftware] += 1
+
+
+	for softwares in counts:
+		for software in softwares:
+			print "%s Found %d instances of %s alerting first" % (softwares, counts[softwares][software], software)
+		print "%s Found %d instances where all softwares tied for alerting first" % (softwares, counts[softwares]["tied"])
+
+	saveFile = os.path.join(hourPath, "meta-countFirsts")
+	with open(saveFile, "w") as fh:
+		for softwares in counts:
+			for key in counts[softwares]:
+				fh.write("%s-%s=%d" % (softwares, key, counts[softwares][key]))
+			
+	commitFileCollected(collectionLocation, hourPath, metaName="meta_firstCounted")
+	return True
+
 def compareDiv(collectionLocation, hourPath):
 	if hasFileBeenCollected(collectionLocation, hourPath):
 		return False

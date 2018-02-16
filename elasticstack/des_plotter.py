@@ -9,6 +9,24 @@ import seaborn as sns
 sns.set()
 
 COLORS = {
+	"div-lines-ciscoasa-pan": {
+		"ciscoasa": "#3366CC",
+		"pan": "#DC3912",
+		"ciscoasa,pan": "#FF9900",
+		"ciscoasa,pan,1": "#109618",
+		"ciscoasa,pan,2": "#990099",
+		"ciscoasa,pan,5": "#3B3EAC",
+		"ciscoasa,pan,10": "#0099C6",
+		"ciscoasa,pan,20": "#DD4477",
+		"ciscoasa,pan,30": "#66AA00",
+		"ciscoasa,pan,60": "#B82E2E",
+		"ciscoasa,pan,120": "#316395",
+		"ciscoasa,pan,300": "#994499",
+		"ciscoasa,pan,600": "#22AA99",
+		"ciscoasa,pan,1200": "#AAAA11",
+		"ciscoasa,pan,1800": "#6633CC",
+		"ciscoasa,pan,2700": "#E67300",
+	},
 	"div-lines": {
 		"ciscoasa": "#3366CC",
 		"pan": "#DC3912",
@@ -17,6 +35,13 @@ COLORS = {
 		"ciscoasa,suricata": "#990099",
 		"pan,suricata": "#3B3EAC",
 		"ciscoasa,pan,suricata": "#0099C6",
+		"bro,pan": "#DD4477",
+		"bro": "#66AA00",
+		"bro,ciscoasa,pan": "#B82E2E",
+		"bro,ciscoasa": "#316395",
+		"ciscoasa,ciscovpn": "#994499",
+		"ciscovpn": "#22AA99",
+		"mcafee": "#AAAA11",
 	},
 	"softwares": {
 		"suricata": "#3366CC",
@@ -111,6 +136,30 @@ def getCollectionDivMeta(collectionLocation):
 					d[key] = int(value)
 
 			f.append([hourFolder, d])
+
+	return f
+
+def getCollectionDivMetaEx(collectionLocation):
+	"""
+	returns a list of [hourFolder, True if data has timeinvertals information, props]
+	"""
+
+	f = []
+
+	for hourFolder in os.listdir(collectionLocation):
+		if not os.path.isdir(os.path.join(collectionLocation, hourFolder)):
+			continue
+		
+		for fileName in ["meta-srcdstlen", "meta-lentimeintervals"]:
+			metaFileName = os.path.join(collectionLocation, hourFolder, fileName)
+			if os.path.exists(metaFileName):
+				d = dict()
+				with open(metaFileName, "r") as fh:
+					for line in fh:
+						key, value = line.split("\n")[0].split("=")
+						d[key] = int(value)
+
+				f.append([hourFolder, (fileName == "meta-lentimeintervals"), d])
 
 	return f
 
@@ -396,9 +445,37 @@ def plot(collectionLocation, collectionDivLocation, plot, save=False, saveLocati
 
 	elif plot == "totals-alerts": totalsAlerts(collectionLocation)
 	elif plot == "totals-div-matches": totalsDivMatches(collectionDivLocation)
+	elif plot == "totals-overlap-div": totalsOverlapDiv(collectionDivLocation)
 	elif plot == "timelocks": timelocks(collectionLocation)
 
 	elif plot == "div-overtime": divOvertime(collectionDivLocation)
+	elif plot == "div-overtime-ciscoasa-pan": divOvertimeCiscoasaPan(collectionDivLocation)
+
+def totalsOverlapDiv(collectionLocation):
+	data = dict()
+	for _, intervals, props in getCollectionDivMetaEx(collectionLocation):
+		if not intervals:
+			continue
+
+		for prop in props:
+			data[prop] = data.get(prop, 0) + props[prop]
+
+	def sortedFunc(x, y):
+		xS = x.split(",")
+		yS = y.split(",")
+		if len(xS) < 3:
+			return -1
+		if len(yS) < 3:
+			return 1
+
+		xx = int(xS[-1])
+		yy = int(yS[-1])
+
+		return -1 if (xx < yy) else 1
+
+	for prop in sorted(sorted(data.keys(), cmp=sortedFunc)):
+		if data[prop] > 0:
+			print "%s,%s,%d" % ("-".join(prop.split(",")[:-1]), prop.split(",")[-1], data[prop])
 
 def totalsDivMatches(collectionLocation):
 	data = dict()
@@ -408,6 +485,82 @@ def totalsDivMatches(collectionLocation):
 
 	for prop in data:
 		print prop, "=", data[prop]
+
+def divOvertimeCiscoasaPan(collectionLocation):
+	data = dict()
+	uniqueProps = set()
+
+	for timestamp, hasIntervals, props in getCollectionDivMetaEx(collectionLocation):
+		t = dateutil.parser.parse(timestamp)
+		if t not in data: data[t] = dict()
+		for prop in props:
+			propS = prop.split(",")
+			if hasIntervals:
+				if propS[0] != "ciscoasa" or propS[1] != "pan":
+					continue
+				if propS[-1] not in ["1","5","10","30","60","600","1800"]:
+					continue
+			else:
+				if len(propS) == 1 and (propS[0] != "ciscoasa" and propS[0] != "pan"):
+					continue
+				elif len(propS) > 1:
+					continue
+			
+			uniqueProps.add(prop)
+			data[t][prop] = props[prop]
+
+	ax = plt.gca()
+	timestamps = sorted(data.keys())
+	i = 0
+
+	def sortedFunc(x, y):
+		xS = x.split(",")
+		yS = y.split(",")
+		if len(xS) < 3:
+			return -1
+		if len(yS) < 3:
+			return 1
+
+		xx = int(xS[-1])
+		yy = int(yS[-1])
+
+		return -1 if (xx < yy) else 1
+
+	for prop in sorted(uniqueProps, cmp=sortedFunc):
+		line = list()
+		for timestamp in timestamps:
+			line.append(data[timestamp].get(prop, 0))
+		
+		if all(x == 0 for x in line):
+			continue
+
+		plt.plot_date(timestamps, line,
+			label=prop,
+			xdate=True,
+			linestyle="solid",
+			marker=".",
+			color=COLORS["div-lines-ciscoasa-pan"][prop]
+		)
+
+		#ax.annotate(prop,
+		#	xy=(timestamps[-1], line[-1]),
+		#	textcoords="figure fraction",
+		#	xytext=(0.9, 0.85-(0.03*i)),
+		#	arrowprops={"arrowstyle":"->"},
+		#	color=COLORS["div-lines-ciscoasa-pan"][prop]
+		#)
+		i += 1
+
+	ax = plt.gca()
+	ax.set_yscale("symlog",
+		linthreshy=100000
+	)
+
+	plt.title("Unique src/dst ip:port pairs over time for ciscoasa-pan")
+	plt.legend(loc=9, ncol=11)
+	plt.show()
+	plt.close()
+					
 
 def divOvertime(collectionDivLocation):
 	data = dict()
@@ -426,6 +579,9 @@ def divOvertime(collectionDivLocation):
 		for timestamp in timestamps:
 			line.append(data[timestamp].get(prop, 0))
 		
+		if all(x == 0 for x in line):
+			continue
+
 		plt.plot_date(timestamps, line,
 			label=prop,
 			xdate=True,
@@ -435,10 +591,13 @@ def divOvertime(collectionDivLocation):
 		)
 
 	ax = plt.gca()
-	ax.set_yscale("symlog")
+	ax.set_yscale("symlog",
+		linthreshy=100,
+		linscaley=4
+	)
 
 	plt.title("Unique src/dst ip:port pairs over time")
-	plt.legend()
+	plt.legend(loc=9, ncol=11)
 	plt.show()
 	plt.close()
 
