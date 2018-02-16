@@ -90,7 +90,7 @@ def countFirst(collectionLocation, hourPath):
 	with open(saveFile, "w") as fh:
 		for softwares in counts:
 			for key in counts[softwares]:
-				fh.write("%s-%s=%d" % (softwares, key, counts[softwares][key]))
+				fh.write("%s-%s=%d\n" % (softwares, key, counts[softwares][key]))
 			
 	commitFileCollected(collectionLocation, hourPath, metaName="meta_firstCounted")
 	return True
