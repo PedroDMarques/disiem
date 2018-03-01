@@ -6,6 +6,7 @@ data_collection/
 data_elasticstack_experimental/
 env/
 plots/
-data_collection_backup/
-data_collection_div/
 data_collection_div_new/
+data_collection_backup/
+data_collection_div_backup/
+data_collection_div_new_backup/

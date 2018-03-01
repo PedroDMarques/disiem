@@ -1,6 +1,7 @@
 import os
 import datetime
 import dateutil.parser
+import itertools
 
 def commitFileCollected(metaPath, fileDesc, metaName="meta_hoursDivCompared"):
 	with open(os.path.join(metaPath, metaName), "a") as f:
@@ -16,6 +17,30 @@ def hasFileBeenCollected(metaPath, fileDesc, metaName="meta_hoursDivCompared"):
 		return False
 
 	return False
+
+def getDivFilesDevicesOverlap(hourPath):
+	for fname in os.listdir(hourPath):
+		if fname.split("-")[0] != "meta":
+
+			softwares = fname.split("-")
+			data = dict()
+			with open(os.path.join(hourPath, fname), "r") as fh:
+				for line in fh:
+					try:
+						lineS = line.split("\n")[0].split(",")
+
+						pair = lineS[0]
+						software = lineS[1]
+						device = lineS[2]
+						if pair not in data: data[pair] = set()
+						data[pair].add("%s.%s" % (software, device))
+					except:
+						print "error on:"
+						print lineS
+						pass
+			
+			yield (softwares, data)
+						
 
 def getDivFiles(hourPath):
 	for fname in os.listdir(hourPath):
@@ -39,6 +64,29 @@ def getDivFiles(hourPath):
 						pass
 
 			yield (softwares, data)
+
+def countDeviceOverlap(collectionLocation, hourPath):
+	if hasFileBeenCollected(collectionLocation, hourPath, metaName="meta_deviceOverlap"):
+		return False
+
+	counts = dict()
+	for softwares, data in getDivFilesDevicesOverlap(hourPath):
+		if len(data) < 1:
+			continue
+		
+		softwares = tuple(softwares)
+		counts[softwares] = {}
+		for pair in data:
+			deviceSet = data[pair]
+			for comb in itertools.combinations(deviceSet, 2):
+				counts[softwares][comb] = counts.get(comb, 0) + 1
+
+	for softwares in counts:
+		for comb in counts[softwares]:
+			print "%s Found %d overlaps for combination %s" % (softwares, counts[softwares][comb], comb)
+
+	
+
 
 def countFirst(collectionLocation, hourPath):
 	if hasFileBeenCollected(collectionLocation, hourPath, metaName="meta_firstCounted"):

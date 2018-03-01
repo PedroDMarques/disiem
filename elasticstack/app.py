@@ -159,6 +159,21 @@ def _collectParsed(args, config):
 					elapsedSeconds = round(time.time() - startTime, 3)
 					print colorLog("info", "Finished processing, took %s seconds" % elapsedSeconds)
 
+def _collectedDivDeviceOverlap(args, config):
+	collectionFolder = config.getOption("collection_div_location")
+	for hourFolder in os.listdir(collectionFolder):
+		hourPath = os.path.join(collectionFolder, hourFolder)
+		if not os.path.isdir(hourPath):
+			continue
+		
+		startTime = time.time()
+		print colorLog("info", "Processing hour folder %s" % hourFolder)
+		if not des_divworker.countDeviceOverlap(collectionFolder, hourPath):
+			print colorLog("danger", "Did not process because already processed this hour before")
+
+		elapsedSeconds = round(time.time() - startTime, 3)
+		print colorLog("info", "Finished processing, took %d seconds" % elapsedSeconds)
+
 def _collectedDivCountFirst(args, config):
 	collectionFolder = config.getOption("collection_div_location")
 	for hourFolder in os.listdir(collectionFolder):
@@ -418,6 +433,7 @@ if __name__ == "__main__":
 		elif args.mode == "collect-parsed-div": _collectParsedDiv(args, config)
 		elif args.mode == "compare-collected-div": _compareCollectedDiv(args, config)
 		elif args.mode == "collected-div-count-first": _collectedDivCountFirst(args, config)
+		elif args.mode == "collected-div-device-overlap": _collectedDivDeviceOverlap(args, config)
 		elif args.mode == "plot": _plot(args, config)
 
 		else:

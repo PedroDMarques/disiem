@@ -9,7 +9,7 @@ def parseArgs():
 		help="With -v each file filtered will be shown. With -vv both files filtered and passed will be shown")
 	
 	parser.add_argument("mode", 
-		choices=["plot","parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed", "collect-parsed-div", "compare-collected-div", "collected-div-count-first"]
+		choices=["plot","parse", "send", "send-parsed", "parse-send", "send-parse", "rank-parsed", "list", "impossible-timestamps", "noop", "config-write", "config-list", "reset-elasticsearch", "output", "create-index", "delete-index", "collect-parsed", "collect-parsed-div", "compare-collected-div", "collected-div-count-first", "collected-div-device-overlap"]
 	)
 
 	parser.add_argument("-c", "--config", default="config.cfg", dest="config_location",
@@ -37,12 +37,13 @@ def parseArgs():
 	)
 
 	plotChoices = ["all", "software-alerts", "software-alerts-small", "suricata-alerts", "ciscoasa-alerts", "pan-alerts", "device-alerts", 
-			"suricata-protocol", "ciscoasa-protocol", "pan-protocol",
+			"suricata-protocol", "ciscoasa-protocol", "pan-protocol", "bro-alerts", "bro-protocol", "mcafee-alerts", "ciscovpn-alerts",
 			"pan-destinationZone", "pan-sourceZone", "pan-application", "pan-cat", "pan-sessionEndReason",
 			"suricata-eventType", "suricata-httpStatus",
 			"pie-software-alerts", "pie-suricata-alerts", "pie-ciscoasa-alerts", "pie-pan-alerts",
-			"totals-alerts", "timelocks", "totals-div-matches", "totals-overlap-div",
-			"div-overtime", "div-overtime-ciscoasa-pan"]
+			"totals-alerts", "timelocks", "totals-div-matches", "totals-overlap-div", "totals-first-counts",
+			"div-overtime", "div-overtime-ciscoasa-pan",
+			"box-unique-pairs"]
 	
 	parser.add_argument("-p", "--plot", choices=plotChoices)
 	parser.add_argument("-s", "--save-plot", action="store_true",
