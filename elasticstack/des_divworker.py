@@ -75,18 +75,18 @@ def countDeviceOverlap(collectionLocation, hourPath):
 			continue
 		
 		softwares = tuple(softwares)
-		counts[softwares] = {}
+		counts[softwares] = dict()
 		for pair in data:
 			deviceSet = data[pair]
 			for comb in itertools.combinations(deviceSet, 2):
-				counts[softwares][comb] = counts.get(comb, 0) + 1
+				counts[softwares][comb] = counts[softwares].get(comb, 0) + 1
 
 	for softwares in counts:
 		for comb in counts[softwares]:
 			print "%s Found %d overlaps for combination %s" % (softwares, counts[softwares][comb], comb)
 
 	
-
+	return True
 
 def countFirst(collectionLocation, hourPath):
 	if hasFileBeenCollected(collectionLocation, hourPath, metaName="meta_firstCounted"):
