@@ -85,7 +85,13 @@ def countDeviceOverlap(collectionLocation, hourPath):
 		for comb in counts[softwares]:
 			print "%s Found %d overlaps for combination %s" % (softwares, counts[softwares][comb], comb)
 
-	
+	saveFile = os.path.join(hourPath, "meta-deviceOverlap")
+	with open(saveFile, "w") as fh:
+		for softwares in counts:
+			for comb in counts[softwares]:
+				fh.write("%s-%s-%s=%d\n" % (softwares, comb[0], comb[1], counts[softwares][comb]))
+
+	commitFileCollected(collectionLocation, hourPath, metaName="meta_deviceOverlap")
 	return True
 
 def countFirst(collectionLocation, hourPath):
